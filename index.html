@@ -194,6 +194,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-messaging.js";
 
         const WAJAH_AMAN = "https://i.ibb.co.com/j9RYvT3t/normal1.png";
         const WAJAH_SEDIH = "https://i.ibb.co.com/8nFFwkDv/sad1.png";
@@ -256,6 +257,18 @@
             toast.innerText = pesan;
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+        
+        async function aktifkanNotifikasi() {
+            try {
+                const izin = await Notification.requestPermission();
+                if (izin === 'granted') {
+                    const token = await getToken(messaging, { vapidKey: 'BP6xL-pJviAEYplqRBQzdRw5U_DSCEgfXNx5SQiaUo6xVMY2277RXZ7Nu6asCkF5dkVDj74lJwZmRak-IM2hj88' });
+                }
+                onMessage(messaging, (payload) => {
+                    tampilkanPesan(`🔔 ${payload.notification.title}: ${payload.notification.body}`);
+                });
+            } catch (error) { }
         }
 
         onAuthStateChanged(auth, (user) => {
