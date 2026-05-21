@@ -8,296 +8,254 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Poppins', 'sans-serif'] },
-                    colors: {
-                        brandCyan: '#26c6da',
-                        brandBlue: '#42a5f5',
-                        bgGray: '#f8f9fa',
-                    }
-                }
-            }
-        }
-    </script>
-
     <style>
         body {
             user-select: none;
-            -webkit-user-select: none;
             -webkit-tap-highlight-color: transparent;
             margin: 0;
-            padding: 0;
-            background-color: #e2e8f0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            background-color: #f4f6f9;
+            font-family: 'Poppins', sans-serif;
             overflow: hidden;
         }
-
         #app-container {
             width: 100%;
-            max-width: 400px;
-            height: 100%;
-            max-height: 100vh;
-            background-color: #f8f9fa; /* Warna background abu-abu sangat muda seperti mockup */
+            max-width: 420px;
+            height: 100vh;
+            margin: 0 auto;
+            background-color: #ffffff;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
         }
-
-        @media (min-width: 450px) {
-            #app-container {
-                height: 90vh;
-                border-radius: 30px;
-                box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            }
+        .input-pill {
+            width: 100%;
+            background-color: #ffffff;
+            border: 2px solid #f0f0f0;
+            border-radius: 999px;
+            padding: 15px 25px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+            color: #333;
         }
-
-        .page-view {
+        .input-pill:focus { border-color: #00d2ff; }
+        textarea.input-pill { border-radius: 24px; }
+        .btn-gradient {
+            background: linear-gradient(135deg, #42a5f5, #00d2ff);
+            color: white;
+            border-radius: 999px;
+            padding: 15px 20px;
+            font-weight: 700;
+            text-align: center;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0, 210, 255, 0.3);
+            transition: transform 0.1s;
+        }
+        .btn-gradient:active { transform: scale(0.96); }
+        .btn-red {
+            background-color: #ff4757;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(255, 71, 87, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .page {
             display: none;
             flex-direction: column;
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #f8f9fa;
-            z-index: 10;
-            overflow-y: auto;
-            overflow-x: hidden;
-        }
-
-        .page-view.active { display: flex; }
-        .page-view::-webkit-scrollbar { display: none; }
-        .page-view { -ms-overflow-style: none; scrollbar-width: none; }
-
-        input, textarea {
-            user-select: text;
-            -webkit-user-select: text;
-        }
-        
-        /* Custom Input Styling sesuai mockup */
-        .custom-input {
-            width: 100%;
             background-color: #ffffff;
-            border: 2px solid #f1f1f1;
-            border-radius: 20px;
-            padding: 14px 20px;
-            font-size: 14px;
-            outline: none;
-            transition: all 0.3s;
+            z-index: 10;
+            height: 100%;
         }
-        .custom-input:focus {
-            border-color: #42a5f5;
-            box-shadow: 0 0 0 3px rgba(66, 165, 245, 0.1);
+        .page.active { display: flex; }
+        .scrollable-area {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-bottom: 100px;
         }
-
-        /* Gradient Button */
-        .btn-gradient {
-            background: linear-gradient(to right, #42a5f5, #26c6da);
-            color: white;
-            border-radius: 20px;
-            padding: 14px;
-            font-weight: 700;
-            text-align: center;
-            transition: opacity 0.3s;
-            box-shadow: 0 4px 15px rgba(38, 198, 218, 0.3);
-        }
-        .btn-gradient:active { opacity: 0.8; }
-
-        /* Card Container (Login/Register) */
-        .auth-card {
-            background: #ffffff;
-            border-radius: 30px;
-            padding: 40px 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-            width: 90%;
-            margin: auto;
-        }
-
-        /* Toast */
+        .scrollable-area::-webkit-scrollbar { display: none; }
         #toast {
-            transition: transform 0.3s ease-in-out, opacity 0.3s;
-            transform: translateY(-100%);
-            opacity: 0;
+            position: fixed;
+            top: -100px; left: 50%; transform: translateX(-50%);
+            background-color: #333; color: white; padding: 12px 24px;
+            border-radius: 999px; z-index: 9999; transition: top 0.4s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2); font-size: 13px; font-weight: 600;
         }
-        #toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
+        #toast.show { top: 20px; }
     </style>
 </head>
 <body>
+    <div id="toast"></div>
+
+    <div id="modal-konfirmasi" class="fixed inset-0 bg-black/40 z-[9999] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-[30px] p-6 w-[85%] max-w-[350px] transform scale-95 transition-transform duration-300 shadow-2xl" id="modal-box">
+            <h3 class="text-xl font-extrabold text-black text-center mb-2">Konfirmasi</h3>
+            <p class="text-sm text-gray-600 text-center mb-6 font-medium" id="modal-pesan"></p>
+            <div class="flex gap-3">
+                <button id="btn-modal-batal" class="flex-1 bg-gray-100 text-gray-600 py-3.5 rounded-full font-bold text-sm transition active:scale-95">Batal</button>
+                <button id="btn-modal-ya" class="flex-1 bg-gradient-to-r from-[#00d2ff] to-[#3a7bd5] text-white py-3.5 rounded-full font-bold text-sm shadow-md transition active:scale-95">Ya, Yakin!</button>
+            </div>
+        </div>
+    </div>
 
     <div id="app-container">
-        
-        <!-- Toast Notification -->
-        <div id="toast" class="absolute top-4 left-4 right-4 bg-gray-800 text-white text-sm px-4 py-3 rounded-2xl shadow-lg z-50 flex items-center justify-between">
-            <span id="toast-msg">Pesan</span>
-            <button onclick="closeToast()"><i class="fas fa-times"></i></button>
-        </div>
-
-        <!-- LAYAR LOADING -->
-        <div id="view-loading" class="page-view active justify-center items-center">
-            <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-brandCyan mb-4"></div>
+        <div id="page-loading" class="page active justify-center items-center bg-white z-50">
+            <div class="animate-spin rounded-full h-14 w-14 border-t-4 border-b-4 border-[#00d2ff] mb-4"></div>
             <h1 class="text-2xl font-bold text-gray-800">Taskify</h1>
         </div>
 
-        <!-- HALAMAN LOGIN (Sesuai Mockup) -->
-        <div id="view-login" class="page-view justify-center items-center p-4">
-            <div class="auth-card">
-                <div class="text-center mb-6">
-                    <!-- GANTI DENGAN FILE LOGOMU -->
-                    <!-- Contoh: <img src="logo.png" alt="Logo" class="w-16 h-16 mx-auto mb-2"> -->
-                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3 text-brandBlue text-2xl"><i class="fas fa-tasks"></i></div>
-                    
-                    <h1 class="text-3xl font-extrabold text-black">Masuk</h1>
-                    <p class="text-gray-600 text-sm mt-1">Masuk ke akun anda</p>
-                </div>
-
-                <form id="form-login" class="flex flex-col gap-5">
-                    <div>
-                        <label class="block text-sm font-medium text-black mb-2 ml-1">Username / Email</label>
-                        <input type="email" id="login-email" required class="custom-input">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-black mb-2 ml-1">Password</label>
-                        <input type="password" id="login-password" required class="custom-input">
-                    </div>
-                    <button type="submit" class="btn-gradient w-3/4 mx-auto mt-4">Masuk</button>
-                </form>
-                <p class="text-center text-sm text-gray-600 mt-8">Belum punya akun? <button onclick="navigate('view-register')" class="text-black font-bold">Daftar Disini</button></p>
+        <div id="page-login" class="page justify-center px-8">
+            <div class="text-center mb-6">
+                <img src="https://i.ibb.co.com/dwBKNYP1/taskify.png" class="w-20 h-20 mx-auto mb-3 object-contain" alt="Logo Taskify">
+                <h1 class="text-4xl font-extrabold text-black tracking-tight">Masuk</h1>
+                <p class="text-gray-500 text-sm mt-1">Masuk ke akun anda</p>
             </div>
-        </div>
-
-        <!-- HALAMAN DAFTAR (Sesuai Mockup) -->
-        <div id="view-register" class="page-view justify-center items-center p-4">
-            <div class="auth-card">
-                <div class="text-center mb-6">
-                    <h1 class="text-3xl font-extrabold text-black">Daftar</h1>
-                    <p class="text-gray-600 text-sm mt-1">Buat akun baru</p>
-                </div>
-
-                <form id="form-register" class="flex flex-col gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-black mb-2 ml-1">Username</label>
-                        <input type="text" id="reg-name" required class="custom-input">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-black mb-2 ml-1">Email</label>
-                        <input type="email" id="reg-email" required class="custom-input">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-black mb-2 ml-1">Password</label>
-                        <input type="password" id="reg-password" required class="custom-input" placeholder="Min. 6 karakter">
-                    </div>
-                    <button type="submit" class="btn-gradient w-3/4 mx-auto mt-4">Daftar</button>
-                </form>
-                <p class="text-center text-sm text-gray-600 mt-8">Sudah punya akun? <button onclick="navigate('view-login')" class="text-black font-bold">Masuk Sekarang</button></p>
-            </div>
-        </div>
-
-        <!-- HALAMAN DASHBOARD -->
-        <div id="view-dashboard" class="page-view">
-            <!-- Top Header Profil -->
-            <div class="p-6 pt-10 flex justify-between items-start">
+            <form id="form-login" class="flex flex-col gap-5 mt-4">
                 <div>
-                    <!-- Kotak Biru tipis di atas judul seperti di mockup -->
-                    <div class="h-2 w-48 bg-gradient-to-r from-blue-200 to-cyan-200 rounded-full mb-4"></div>
-                    <h1 class="text-3xl font-extrabold text-black" id="greet-name">Halo, (User)</h1>
-                    <p class="text-gray-800 text-sm mt-1 w-4/5 leading-relaxed">Sudah mempersiapkan diri untuk mengerjakan tugas?</p>
+                    <label class="block text-sm font-semibold text-black mb-2 ml-4">Email</label>
+                    <input type="email" id="login-email" class="input-pill" required>
                 </div>
-                <!-- GANTI DENGAN FILE FOTO PROFILMU -->
-                <!-- Contoh: <img src="default-pp.png" alt="Profile" ...> -->
-                <img id="nav-profile-pic" onclick="navigate('view-profile')" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23d1d5db'/><circle cx='50' cy='35' r='15' fill='%239ca3af'/><path d='M20 90 Q50 60 80 90' stroke='%239ca3af' stroke-width='10' fill='none'/></svg>" alt="Profile" class="w-12 h-12 rounded-full object-cover cursor-pointer">
+                <div>
+                    <label class="block text-sm font-semibold text-black mb-2 ml-4">Password</label>
+                    <input type="password" id="login-password" class="input-pill" required>
+                </div>
+                <div class="mt-2 flex justify-center">
+                    <button type="submit" class="btn-gradient w-[85%] py-4 text-lg">Masuk</button>
+                </div>
+            </form>
+            <p class="text-center text-sm text-gray-600 mt-10">
+                Belum punya akun? <span onclick="pindahHalaman('page-register')" class="text-black font-extrabold cursor-pointer">Daftar Disini</span>
+            </p>
+        </div>
+
+        <div id="page-register" class="page justify-center px-8">
+            <div class="text-center mb-6">
+                <img src="https://i.ibb.co.com/dwBKNYP1/taskify.png" class="w-16 h-16 mx-auto mb-2 object-contain" alt="Logo Taskify">
+                <h1 class="text-4xl font-extrabold text-black tracking-tight">Daftar</h1>
+                <p class="text-gray-500 text-sm mt-1">Buat akun baru</p>
             </div>
-
-            <div class="px-6">
-                <!-- Tombol Taskify Besar -->
-                <div class="bg-gradient-to-r from-blue-400 to-cyan-400 rounded-2xl py-4 flex justify-center items-center mb-6 shadow-md cursor-pointer">
-                    <h2 class="text-white text-2xl font-extrabold">Taskify</h2>
+            <form id="form-register" class="flex flex-col gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-black mb-2 ml-4">Username</label>
+                    <input type="text" id="reg-username" class="input-pill" required>
                 </div>
+                <div>
+                    <label class="block text-sm font-semibold text-black mb-2 ml-4">Email</label>
+                    <input type="email" id="reg-email" class="input-pill" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-black mb-2 ml-4">Password</label>
+                    <input type="password" id="reg-password" class="input-pill" placeholder="Min. 6 huruf" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-black mb-2 ml-4">Konfirmasi Password</label>
+                    <input type="password" id="reg-confirm" class="input-pill" required>
+                </div>
+                <div class="mt-2 flex justify-center">
+                    <button type="submit" class="btn-gradient w-[85%] py-4 text-lg">Daftar</button>
+                </div>
+            </form>
+            <p class="text-center text-sm text-gray-600 mt-10">
+                Sudah punya akun? <span onclick="pindahHalaman('page-login')" class="text-black font-extrabold cursor-pointer">Masuk Sekarang</span>
+            </p>
+        </div>
 
-                <!-- Tabs (Visual) -->
+        <div id="page-beranda" class="page bg-[#f9fafc]">
+            <div class="px-6 pt-10 pb-4 bg-white rounded-b-[30px] shadow-sm z-10">
+                <div class="w-32 h-1.5 bg-gradient-to-r from-blue-300 to-cyan-300 rounded-full mb-4"></div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h1 class="text-3xl font-extrabold text-black tracking-tight" id="greet-name"></h1>
+                        <p class="text-gray-700 font-medium text-sm mt-1 w-4/5 leading-relaxed">Sudah mempersiapkan diri untuk mengerjakan tugas?</p>
+                    </div>
+                    <img id="nav-pp" onclick="pindahHalaman('page-profil')" src="" class="w-14 h-14 rounded-full shadow-md cursor-pointer border-2 border-white object-cover">
+                </div>
+            </div>
+            <div class="scrollable-area px-6 pt-6">
+                <div class="w-full bg-gradient-to-r from-[#42a5f5] to-[#00d2ff] rounded-[20px] py-4 flex items-center justify-center mb-6 shadow-md">
+                    <h2 class="text-white text-3xl font-extrabold tracking-widest">Taskify</h2>
+                </div>
                 <div class="flex gap-4 mb-6">
-                    <button class="bg-gray-300 text-gray-800 px-6 py-2 rounded-full font-semibold text-sm flex-1">Tugas</button>
-                    <button class="bg-white text-gray-400 px-6 py-2 rounded-full font-semibold text-sm border border-gray-200 flex-1">Kegiatan</button>
+                    <button id="tab-tugas" onclick="ubahFilter('tugas')" class="flex-1 bg-gray-300 text-gray-800 py-3 rounded-full text-sm font-bold shadow-inner transition">Tugas</button>
+                    <button id="tab-kegiatan" onclick="ubahFilter('kegiatan')" class="flex-1 border-2 border-gray-200 text-gray-400 py-3 rounded-full text-sm font-bold transition">Kegiatan</button>
+                </div>
+                <div id="list-container" class="flex flex-col gap-4">
+                    <p class="text-center text-gray-400 text-sm mt-10"></p>
                 </div>
             </div>
-
-            <!-- List Tugas -->
-            <div class="flex-1 px-6 overflow-y-auto pb-24" id="task-list-container">
-                <!-- Render area -->
-            </div>
-
-            <!-- Tombol Tambah Bawah (Sesuai Mockup) -->
-            <div class="absolute bottom-6 left-0 right-0 px-6">
-                <button onclick="openTaskForm()" class="w-full bg-white text-gray-500 font-semibold py-4 rounded-xl shadow-[0_4px_15px_rgba(0,0,0,0.05)] border border-gray-100 flex justify-center items-center text-sm">
-                    + Tambah Tugas
+            <div class="absolute bottom-6 left-6 right-6 z-20">
+                <button onclick="bukaFormTambah()" class="w-full bg-white text-gray-500 py-4 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] border border-gray-100 font-bold text-sm flex justify-center items-center">
+                    + Tambah <span id="btn-tambah-label" class="ml-1">Tugas</span>
                 </button>
             </div>
         </div>
 
-        <!-- HALAMAN TAMBAH/EDIT TUGAS (Sesuai Mockup) -->
-        <div id="view-task-form" class="page-view bg-white p-6 pt-10">
-            <!-- Back Button Merah -->
-            <button onclick="navigate('view-dashboard')" class="bg-[#ff4d4d] text-white px-4 py-1.5 rounded-full text-sm font-bold w-max mb-6 flex items-center gap-1 shadow-md">
-                <i class="fas fa-chevron-left text-xs"></i> Kembali
+        <div id="page-form" class="page px-6 pt-10">
+            <button onclick="pindahHalaman('page-beranda')" class="btn-red mb-8">
+                <i class="fas fa-chevron-left"></i> Kembali
             </button>
-
-            <h1 class="text-3xl font-extrabold text-black text-center mb-8" id="task-form-title">Tambah Tugas</h1>
-
-            <form id="form-task" class="flex flex-col gap-5">
-                <input type="hidden" id="task-id">
+            <h1 class="text-3xl font-extrabold text-black text-center mb-8" id="form-title">Tambah Tugas</h1>
+            <form id="form-data" class="flex flex-col gap-5">
+                <input type="hidden" id="form-id"> 
                 <div>
-                    <label class="block text-sm font-medium text-black mb-2 ml-1">Nama Tugas</label>
-                    <input type="text" id="task-title" required class="custom-input">
+                    <label class="block text-sm font-semibold text-black mb-2 ml-4">Nama <span id="label-jenis"></span></label>
+                    <input type="text" id="form-judul" class="input-pill" required>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-black mb-2 ml-1">Deskripsi</label>
-                    <textarea id="task-desc" rows="3" class="custom-input"></textarea>
+                    <label class="block text-sm font-semibold text-black mb-2 ml-4">Deskripsi</label>
+                    <textarea id="form-desc" class="input-pill" rows="3"></textarea>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-black mb-2 ml-1">Deadline</label>
-                    <input type="date" id="task-deadline" required class="custom-input text-gray-500 text-center">
+                    <label class="block text-sm font-semibold text-black mb-2 ml-4">Deadline / Tanggal</label>
+                    <input type="date" id="form-date" class="input-pill text-center font-bold text-gray-600" required>
                 </div>
-                <button type="submit" class="btn-gradient w-3/4 mx-auto mt-8 text-lg py-3" id="btn-save-task">Tambah</button>
+                <div class="mt-6 flex justify-center">
+                    <button type="submit" class="btn-gradient w-[85%] py-4 text-lg" id="btn-submit-form"></button>
+                </div>
             </form>
         </div>
 
-        <!-- HALAMAN EDIT PROFIL -->
-        <div id="view-profile" class="page-view p-6 pt-10">
-            <button onclick="navigate('view-dashboard')" class="bg-gray-300 text-gray-800 px-4 py-1.5 rounded-full text-sm font-bold w-max mb-6 shadow-sm">
-                Kembali
+        <div id="page-profil" class="page bg-[#f9fafc] px-6 pt-10">
+            <button onclick="pindahHalaman('page-beranda')" class="btn-red bg-gray-400 mb-6 !shadow-none">
+                <i class="fas fa-chevron-left"></i> Kembali
             </button>
-            <h2 class="text-3xl font-extrabold text-black text-center mb-8">Profil Saya</h2>
-            
-            <div class="flex flex-col items-center bg-white p-6 rounded-3xl shadow-sm">
-                <!-- GANTI DENGAN FILE FOTO PROFILMU -->
-                <img id="edit-profile-pic" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23d1d5db'/><circle cx='50' cy='35' r='15' fill='%239ca3af'/><path d='M20 90 Q50 60 80 90' stroke='%239ca3af' stroke-width='10' fill='none'/></svg>" alt="Profile" class="w-24 h-24 rounded-full object-cover shadow-md mb-6 border-4 border-white">
-                
-                <form id="form-profile" class="w-full flex flex-col gap-4">
+            <h1 class="text-3xl font-extrabold text-black text-center mb-6">Profil Saya</h1>
+            <div class="bg-white p-6 rounded-[30px] shadow-sm flex flex-col items-center mx-auto w-full">
+                <img id="edit-pp" src="" onerror="this.src='https://i.ibb.co.com/HpV3VL0y/defaultpp.png'" class="w-24 h-24 rounded-full object-cover shadow-md border-4 border-white mb-6">
+                <form id="form-profil" class="w-full flex flex-col gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-black mb-2 ml-1">Username / Nama Panggilan</label>
-                        <input type="text" id="profile-name" required class="custom-input text-center">
+                        <label class="block text-sm font-semibold text-center text-black mb-2">Username / Nama</label>
+                        <input type="text" id="edit-username" class="input-pill text-center font-bold" required>
                     </div>
-                    <button type="submit" class="bg-gray-800 text-white font-bold rounded-2xl py-3 mt-4 w-full">Simpan Nama</button>
+                    <div>
+                        <label class="block text-xs font-semibold text-center text-gray-500 mb-2">Tautan Gambar Profil (URL)</label>
+                        <input type="url" id="edit-url-pp" class="input-pill text-center text-xs text-blue-500" required>
+                    </div>
+                    <button type="submit" class="bg-gray-800 text-white font-bold rounded-[20px] py-4 mt-2 w-full shadow-md transition active:scale-95">
+                        Simpan Perubahan
+                    </button>
                 </form>
-
-                <button onclick="logout()" class="w-full bg-red-100 text-red-600 font-bold rounded-2xl py-3 mt-4 text-center">
-                    Keluar Akun
+                <button onclick="keluarAkun()" class="mt-4 text-red-500 bg-red-50 w-full py-3 rounded-[20px] font-bold flex items-center justify-center gap-2">
+                    <i class="fas fa-sign-out-alt"></i> Keluar Akun
                 </button>
             </div>
         </div>
-
     </div>
 
-    <!-- Firebase Configuration & Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-messaging.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBZ2DSnOWUnC5bRK6TS_uRKSSTrQpcu9yo",
@@ -311,110 +269,308 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const messaging = getMessaging(app);
+
+        const LINK_PFP_DEFAULT = "https://i.ibb.co.com/HpV3VL0y/defaultpp.png";
 
         let currentUser = null;
-        let tasks = [];
-        let unsubscribeTasks = null;
+        let semuaData = []; 
+        let tipeAktif = 'tugas';
+        let unsubscribeDb = null;
+        let fungsiAksiYa = null; 
 
-        // UI Routing
-        window.navigate = (viewId) => {
-            document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
-            document.getElementById(viewId).classList.add('active');
-        };
-
-        // Toast Messages
-        window.showToast = (message) => {
-            document.getElementById('toast-msg').innerText = message;
-            document.getElementById('toast').classList.add('show');
-            setTimeout(() => document.getElementById('toast').classList.remove('show'), 3000);
-        };
-        window.closeToast = () => document.getElementById('toast').classList.remove('show');
-
-        // Format Tanggal (Besok, Hari Ini, dll) + Styling Mockup (Merah vs Biru)
-        function formatDeadline(dateString) {
-            const deadline = new Date(dateString);
-            deadline.setHours(23, 59, 59, 999);
-            const now = new Date();
-            const diffDays = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
-
-            let text = deadline.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-            
-            // Konsep Mockup: Kalau dekat deadline -> Merah, kalau masih lama -> Biru/Cyan
-            let styleTheme = 'red'; 
-
-            if (diffDays < 0) {
-                text = `Terlewat ${Math.abs(diffDays)} hari`;
-                styleTheme = 'red';
-            } else if (diffDays === 0) {
-                text = 'Hari ini!';
-                styleTheme = 'red';
-            } else if (diffDays === 1) {
-                text = 'Besok';
-                styleTheme = 'red';
-            } else if (diffDays <= 3) {
-                text = `Sisa ${diffDays} hari`;
-                styleTheme = 'red';
-            } else {
-                styleTheme = 'blue';
-            }
-
-            return { text, styleTheme };
+        window.tampilkanModal = (pesan, fungsiAksi) => {
+            document.getElementById('modal-pesan').innerText = pesan;
+            fungsiAksiYa = fungsiAksi;
+            const modal = document.getElementById('modal-konfirmasi');
+            const box = document.getElementById('modal-box');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                box.classList.remove('scale-95');
+            }, 10);
         }
 
-        // Render Cards (Mirip Mockup)
-        function renderTasks() {
-            const container = document.getElementById('task-list-container');
-            container.innerHTML = '';
-            
-            if (tasks.length === 0) {
-                container.innerHTML = `<p class="text-center text-gray-400 mt-10">Belum ada tugas.</p>`;
-                return;
+        window.tutupModal = () => {
+            const modal = document.getElementById('modal-konfirmasi');
+            const box = document.getElementById('modal-box');
+            modal.classList.add('opacity-0');
+            box.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        document.getElementById('btn-modal-batal').addEventListener('click', tutupModal);
+        document.getElementById('btn-modal-ya').addEventListener('click', () => {
+            if(fungsiAksiYa) fungsiAksiYa();
+            tutupModal();
+        });
+
+        window.pindahHalaman = (idHalaman) => {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(idHalaman).classList.add('active');
+        }
+
+        window.tampilkanPesan = (pesan) => {
+            const toast = document.getElementById('toast');
+            toast.innerText = pesan;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        async function aktifkanNotifikasi() {
+            try {
+                const izin = await Notification.requestPermission();
+                if (izin === 'granted') {
+                    const token = await getToken(messaging, { vapidKey: 'BP6xL-pJviAEYplqRBQzdRw5U_DSCEgfXNx5SQiaUo6xVMY2277RXZ7Nu6asCkF5dkVDj74lJwZmRak-IM2hj88' });
+                }
+                onMessage(messaging, (payload) => {
+                    tampilkanPesan(`🔔 ${payload.notification.title}: ${payload.notification.body}`);
+                });
+            } catch (error) { }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                const nama = user.displayName || "User";
+                const pfp = user.photoURL || LINK_PFP_DEFAULT;
+                
+                document.getElementById('greet-name').innerText = `Halo, ${nama}`;
+                
+                const navPp = document.getElementById('nav-pp');
+                navPp.src = pfp;
+                navPp.onerror = function() { this.src = LINK_PFP_DEFAULT; };
+                
+                document.getElementById('edit-username').value = nama;
+                document.getElementById('edit-url-pp').value = pfp;
+                document.getElementById('edit-pp').src = pfp;
+
+                aktifkanDatabase();
+                aktifkanNotifikasi(); 
+                pindahHalaman('page-beranda');
+            } else {
+                currentUser = null;
+                if(unsubscribeDb) unsubscribeDb();
+                pindahHalaman('page-login');
             }
+        });
 
-            tasks.forEach(task => {
-                const dl = formatDeadline(task.deadline);
-                const isDone = task.completed;
-                
-                // Styling dinamis (Merah / Biru)
-                const boxColor = dl.styleTheme === 'red' ? 'from-[#ff4d4d] to-[#ff758c]' : 'from-[#42a5f5] to-[#26c6da]';
-                const pillColor = dl.styleTheme === 'red' ? 'from-[#ff4d4d] to-[#ff758c]' : 'from-[#42a5f5] to-[#26c6da]';
-                const buttonLabel = isDone ? 'Batal' : 'Selesai';
-                const buttonColor = isDone ? 'bg-gray-300 text-gray-700' : 'bg-gradient-to-r from-[#69f0ae] to-[#00e676] text-white';
+        document.getElementById('form-login').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            pindahHalaman('page-loading');
+            try {
+                await signInWithEmailAndPassword(auth, 
+                    document.getElementById('login-email').value, 
+                    document.getElementById('login-password').value
+                );
+                document.getElementById('form-login').reset();
+            } catch (err) {
+                pindahHalaman('page-login');
+                tampilkanPesan("Gagal masuk. Periksa kembali datanya.");
+            }
+        });
 
-                const card = document.createElement('div');
-                card.className = `bg-white rounded-[24px] p-4 shadow-[0_5px_15px_rgba(0,0,0,0.03)] border border-gray-100 mb-4 transition ${isDone ? 'opacity-60' : ''}`;
-                
-                card.innerHTML = `
-                    <div class="flex gap-4">
-                        <!-- Kotak Warna Kiri -->
-                        <div class="w-[64px] h-[64px] rounded-[16px] bg-gradient-to-br ${boxColor} flex-shrink-0 cursor-pointer" onclick="editTask('${task.id}')"></div>
-                        
-                        <!-- Info Kanan -->
-                        <div class="flex-1 pt-1 cursor-pointer" onclick="editTask('${task.id}')">
-                            <div class="flex justify-between">
-                                <h3 class="font-extrabold text-black text-[16px] ${isDone ? 'line-through text-gray-400' : ''}">${task.title}</h3>
-                                <button onclick="event.stopPropagation(); deleteTask('${task.id}')" class="text-gray-300 hover:text-red-400"><i class="fas fa-trash text-sm"></i></button>
-                            </div>
-                            <p class="text-xs text-gray-700 mt-1 leading-snug line-clamp-2">${task.description || ''}</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Pills Bawah -->
-                    <div class="flex gap-3 mt-4">
-                        <div class="flex-1 bg-gradient-to-r ${pillColor} text-white text-xs font-bold text-center py-2 rounded-full flex items-center justify-center truncate px-2">
-                            Deadline: ${dl.text}
-                        </div>
-                        <button onclick="toggleComplete('${task.id}', ${isDone})" class="px-6 py-2 rounded-full text-xs font-bold ${buttonColor} shadow-sm">
-                            ${buttonLabel}
-                        </button>
-                    </div>
-                `;
-                container.appendChild(card);
+        document.getElementById('form-register').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('reg-email').value;
+            const pass = document.getElementById('reg-password').value;
+            const conf = document.getElementById('reg-confirm').value;
+            const nama = document.getElementById('reg-username').value;
+
+            if(pass.length < 6) return tampilkanPesan("Password minimal 6 karakter!");
+            if(pass !== conf) return tampilkanPesan("Konfirmasi password salah!");
+
+            pindahHalaman('page-loading');
+            try {
+                const res = await createUserWithEmailAndPassword(auth, email, pass);
+                await updateProfile(res.user, { displayName: nama, photoURL: LINK_PFP_DEFAULT });
+                document.getElementById('greet-name').innerText = `Halo, ${nama}`;
+                document.getElementById('edit-username').value = nama;
+                document.getElementById('form-register').reset();
+                tampilkanPesan("Akun berhasil dibuat!");
+            } catch (err) {
+                pindahHalaman('page-register');
+                tampilkanPesan("Gagal mendaftar. Email mungkin sudah dipakai.");
+            }
+        });
+
+        window.keluarAkun = () => {
+            tampilkanModal("Yakin ingin keluar dari aplikasi?", async () => {
+                await signOut(auth);
             });
         }
 
-        // Load Data Firestore
-        function loadUserTasks() {
-            if (!currentUser) return;
-            const tasksRef = collection(db, 'users', currentUser.uid, 'tasks');
-            unsubscribeTasks = onSna
+        document.getElementById('form-profil').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const namaBaru = document.getElementById('edit-username').value;
+            let urlBaru = document.getElementById('edit-url-pp').value.trim();
+            if(urlBaru === "") urlBaru = LINK_PFP_DEFAULT;
+            try {
+                await updateProfile(currentUser, { displayName: namaBaru, photoURL: urlBaru });
+                document.getElementById('edit-pp').src = urlBaru;
+                document.getElementById('nav-pp').src = urlBaru;
+                document.getElementById('greet-name').innerText = `Halo, ${namaBaru}`;
+                tampilkanPesan("Profil tersimpan!");
+                pindahHalaman('page-beranda');
+            } catch(err) {
+                tampilkanPesan("Gagal menyimpan profil.");
+            }
+        });
+
+        document.getElementById('edit-url-pp').addEventListener('input', (e) => {
+            const val = e.target.value.trim();
+            if(val) { document.getElementById('edit-pp').src = val; } 
+            else { document.getElementById('edit-pp').src = LINK_PFP_DEFAULT; }
+        });
+
+        window.ubahFilter = (tipe) => {
+            tipeAktif = tipe;
+            const btnTugas = document.getElementById('tab-tugas');
+            const btnKegiatan = document.getElementById('tab-kegiatan');
+            
+            if(tipe === 'tugas') {
+                btnTugas.className = "flex-1 bg-gray-300 text-gray-800 py-3 rounded-full text-sm font-bold shadow-inner transition";
+                btnKegiatan.className = "flex-1 border-2 border-gray-200 text-gray-400 py-3 rounded-full text-sm font-bold transition";
+                document.getElementById('btn-tambah-label').innerText = "Tugas";
+            } else {
+                btnKegiatan.className = "flex-1 bg-gray-300 text-gray-800 py-3 rounded-full text-sm font-bold shadow-inner transition";
+                btnTugas.className = "flex-1 border-2 border-gray-200 text-gray-400 py-3 rounded-full text-sm font-bold transition";
+                document.getElementById('btn-tambah-label').innerText = "Kegiatan";
+            }
+            gambarList();
+        }
+
+        function aktifkanDatabase() {
+            const refTugas = collection(db, 'users', currentUser.uid, 'tasks');
+            unsubscribeDb = onSnapshot(refTugas, (snapshot) => {
+                semuaData = [];
+                snapshot.forEach(doc => semuaData.push({ id: doc.id, ...doc.data() }));
+                gambarList();
+            });
+        }
+
+        function hitungWaktu(tglStr) {
+            const date = new Date(tglStr);
+            date.setHours(23, 59, 59);
+            const selisihHari = Math.ceil((date - new Date()) / (1000 * 60 * 60 * 24));
+            if(selisihHari < 0) return { teks: `TELAT ${Math.abs(selisihHari)} HARI`, status: 'telat' };
+            if(selisihHari === 0) return { teks: "HARI INI!", status: 'dekat' };
+            if(selisihHari === 1) return { teks: "BESOK", status: 'dekat' };
+            if(selisihHari <= 3) return { teks: `${selisihHari} HARI LAGI`, status: 'dekat' };
+            return { teks: date.toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'}), status: 'aman' };
+        }
+
+        function gambarList() {
+            const wadah = document.getElementById('list-container');
+            wadah.innerHTML = '';
+            let dataDitampilkan = semuaData.filter(d => d.tipe === tipeAktif);
+            dataDitampilkan.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
+
+            if(dataDitampilkan.length === 0) {
+                wadah.innerHTML = `<p class="text-center text-gray-400 text-sm mt-10"></p>`;
+                return;
+            }
+
+            dataDitampilkan.forEach(item => {
+                const sisa = hitungWaktu(item.tanggal);
+                
+                let bgKotak = tipeAktif === 'tugas' ? 'from-[#00d2ff] to-[#3a7bd5]' : 'from-[#ff9a44] to-[#fc6076]';
+                if(sisa.status === 'telat') bgKotak = 'from-[#ff4d4d] to-[#ff0000]';
+                else if(sisa.status === 'dekat') bgKotak = 'from-[#ff758c] to-[#ff7eb3]';
+
+                const teksBtnSelesai = tipeAktif === 'tugas' ? 'Selesai' : 'Akhiri';
+
+                wadah.innerHTML += `
+                    <div class="bg-white rounded-3xl p-4 shadow-sm border border-gray-50 mb-2 transition">
+                        <div class="flex gap-4">
+                            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br ${bgKotak} flex-shrink-0 cursor-pointer" onclick="bukaFormEdit('${item.id}')"></div>
+                            
+                            <div class="flex-1 overflow-hidden pt-1">
+                                <div class="flex justify-between items-start">
+                                    <h3 class="font-bold text-black text-[15px] cursor-pointer truncate" onclick="bukaFormEdit('${item.id}')">${item.judul}</h3>
+                                    <button onclick="hapusData('${item.id}')" class="text-gray-300 hover:text-red-500 pl-2"><i class="fas fa-trash text-sm"></i></button>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1 line-clamp-2">${item.deskripsi}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3 mt-4">
+                            <div class="flex-[1.5] bg-gradient-to-r ${bgKotak} text-white text-[11px] font-extrabold text-center py-2.5 rounded-full px-2 tracking-wide truncate">
+                                ${sisa.teks}
+                            </div>
+                            <button onclick="selesaikanTugas('${item.id}')" class="flex-1 bg-gradient-to-r from-[#69f0ae] to-[#00e676] text-white shadow-md text-[11px] font-extrabold rounded-full py-2.5 active:scale-95 transition">
+                                ${teksBtnSelesai}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        window.bukaFormTambah = () => {
+            document.getElementById('form-data').reset();
+            document.getElementById('form-id').value = '';
+            document.getElementById('form-date').valueAsDate = new Date();
+            document.getElementById('form-title').innerText = tipeAktif === 'tugas' ? 'Tambah Tugas' : 'Tambah Kegiatan';
+            document.getElementById('label-jenis').innerText = tipeAktif === 'tugas' ? 'Tugas' : 'Kegiatan';
+            document.getElementById('btn-submit-form').innerText = 'Tambah';
+            pindahHalaman('page-form');
+        }
+
+        window.bukaFormEdit = (id) => {
+            const data = semuaData.find(d => d.id === id);
+            if(!data) return;
+            document.getElementById('form-id').value = id;
+            document.getElementById('form-judul').value = data.judul;
+            document.getElementById('form-desc').value = data.deskripsi;
+            document.getElementById('form-date').value = data.tanggal;
+            document.getElementById('form-title').innerText = tipeAktif === 'tugas' ? 'Edit Tugas' : 'Edit Kegiatan';
+            document.getElementById('label-jenis').innerText = tipeAktif === 'tugas' ? 'Tugas' : 'Kegiatan';
+            document.getElementById('btn-submit-form').innerText = 'Simpan';
+            pindahHalaman('page-form');
+        }
+
+        document.getElementById('form-data').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('form-id').value;
+            const dataTugas = {
+                judul: document.getElementById('form-judul').value,
+                deskripsi: document.getElementById('form-desc').value,
+                tanggal: document.getElementById('form-date').value,
+                tipe: tipeAktif
+            };
+            try {
+                if(id) {
+                    await updateDoc(doc(db, 'users', currentUser.uid, 'tasks', id), dataTugas);
+                    tampilkanPesan("Telah Diperbarui!");
+                } else {
+                    await addDoc(collection(db, 'users', currentUser.uid, 'tasks'), dataTugas);
+                    tampilkanPesan("Telah Ditambahkan!");
+                }
+                pindahHalaman('page-beranda');
+            } catch(e) { tampilkanPesan("Gagal menyimpan."); }
+        });
+
+        window.hapusData = (id) => {
+            tampilkanModal("Apakah kamu yakin ingin menghapus data ini?", async () => {
+                try {
+                    await deleteDoc(doc(db, 'users', currentUser.uid, 'tasks', id));
+                    tampilkanPesan("Data berhasil dihapus!");
+                } catch(e) {}
+            });
+        }
+
+        window.selesaikanTugas = (id) => {
+            tampilkanModal("Apakah kamu yakin sudah selesai?", async () => {
+                try {
+                    await deleteDoc(doc(db, 'users', currentUser.uid, 'tasks', id));
+                    tampilkanPesan("Terima kasih sudah mengerjakan!");
+                } catch (e) {}
+            });
+        }
+    </script>
+</body>
+</html>
+
+
+```
