@@ -35,6 +35,11 @@
 <body>
     <div id="toast"></div>
 
+    <div id="splash-overlay" class="fixed inset-0 bg-white z-[99999] flex flex-col justify-center items-center transition-opacity duration-500">
+        <img src="https://i.ibb.co.com/pvbNDz7v/taskify.png" class="w-24 h-24 mb-3 object-contain animate-pulse" alt="Logo">
+        <h1 class="text-xl font-extrabold text-gray-400 tracking-[0.3em] uppercase">Taskify</h1>
+    </div>
+
     <div id="modal-konfirmasi" class="fixed inset-0 bg-black/40 z-[9999] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
         <div class="bg-white rounded-[24px] p-6 w-[80%] max-w-[320px] transform scale-95 transition-transform duration-300 shadow-2xl" id="modal-box">
             <h3 class="text-lg font-extrabold text-black text-center mb-1">Konfirmasi</h3>
@@ -55,7 +60,8 @@
         <div id="page-login" class="page justify-center items-center px-6">
             <div class="bg-white w-full max-w-[340px] rounded-[30px] p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-50">
                 <div class="text-center mb-6">
-                    <img src="https://i.ibb.co.com/pvbNDz7v/taskify.png" class="w-16 h-16 mx-auto mb-3 object-contain" alt="Logo">
+                    <img src="https://i.ibb.co.com/pvbNDz7v/taskify.png" class="w-16 h-16 mx-auto mb-1 object-contain" alt="Logo">
+                    <h2 class="text-[10px] font-bold text-gray-400 tracking-[0.2em] mb-3 uppercase">Taskify</h2>
                     <h1 class="text-3xl font-extrabold text-black tracking-tight">Masuk</h1>
                     <p class="text-gray-500 text-[12px] mt-1">Masuk ke akun anda</p>
                 </div>
@@ -81,7 +87,8 @@
         <div id="page-register" class="page justify-center items-center px-6">
             <div class="bg-white w-full max-w-[340px] rounded-[30px] p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-50">
                 <div class="text-center mb-6">
-                    <img src="https://i.ibb.co.com/pvbNDz7v/taskify.png" class="w-14 h-14 mx-auto mb-3 object-contain" alt="Logo">
+                    <img src="https://i.ibb.co.com/pvbNDz7v/taskify.png" class="w-14 h-14 mx-auto mb-1 object-contain" alt="Logo">
+                    <h2 class="text-[9px] font-bold text-gray-400 tracking-[0.2em] mb-3 uppercase">Taskify</h2>
                     <h1 class="text-2xl font-extrabold text-black tracking-tight">Daftar</h1>
                     <p class="text-gray-500 text-[12px] mt-1">Buat akun baru</p>
                 </div>
@@ -131,9 +138,12 @@
                     </span>
                 </div>
                 
-                <div class="flex gap-3 mb-6 px-1">
+                <div class="flex gap-2.5 mb-6 px-1">
                     <button id="tab-tugas" onclick="ubahFilter('tugas')" class="flex-1 bg-gray-200 text-gray-800 py-2.5 rounded-full text-[12px] font-bold shadow-inner transition">Tugas</button>
                     <button id="tab-kegiatan" onclick="ubahFilter('kegiatan')" class="flex-1 border-[1.5px] border-gray-200 text-gray-400 py-2.5 rounded-full text-[12px] font-bold transition">Kegiatan</button>
+                    <button onclick="bukaRiwayat()" class="w-[42px] h-[42px] flex-shrink-0 bg-white border-[1.5px] border-gray-200 text-gray-400 rounded-full flex justify-center items-center shadow-sm transition active:scale-95">
+                        <i class="fas fa-history text-[13px]"></i>
+                    </button>
                 </div>
                 
                 <div id="list-container" class="flex flex-col gap-3"></div>
@@ -143,6 +153,45 @@
                 <button onclick="bukaFormTambah()" class="w-full bg-white text-gray-600 py-3.5 rounded-[18px] shadow-[0_8px_20px_rgba(0,0,0,0.06)] border border-gray-100 font-bold text-[13px] flex justify-center items-center active:scale-95 transition">
                     + Tambah <span id="btn-tambah-label" class="ml-1">Tugas</span>
                 </button>
+            </div>
+        </div>
+
+        <div id="page-riwayat" class="page">
+            <div class="px-6 pt-10 pb-5 bg-white rounded-b-[28px] shadow-[0_4px_20px_rgba(0,0,0,0.02)] z-10 relative flex items-center gap-4">
+                <button onclick="pindahHalaman('page-beranda')" class="w-10 h-10 flex justify-center items-center bg-gray-50 rounded-full text-gray-600 transition active:scale-95">
+                    <i class="fas fa-chevron-left text-[12px]"></i>
+                </button>
+                <div>
+                    <h1 class="text-[20px] font-extrabold text-black tracking-tight leading-tight" id="riwayat-title">Riwayat</h1>
+                    <p class="text-gray-400 text-[10px] mt-0.5">Daftar yang sudah diselesaikan</p>
+                </div>
+            </div>
+            <div class="scrollable-area px-6 pt-6">
+                <div id="riwayat-container" class="flex flex-col gap-3"></div>
+            </div>
+        </div>
+
+        <div id="page-detail" class="page px-6 pt-8">
+            <button onclick="pindahHalaman('page-riwayat')" class="btn-red w-max mb-6">
+                <i class="fas fa-chevron-left text-[10px]"></i> Kembali
+            </button>
+            <div class="bg-white w-full p-6 rounded-[24px] shadow-[0_10px_30px_rgba(0,0,0,0.03)] border border-gray-50">
+                <div class="flex justify-between items-start mb-4">
+                    <span id="detail-status" class="px-3 py-1 rounded-[8px] text-[10px] font-bold"></span>
+                    <button id="btn-hapus-detail" class="text-gray-300 hover:text-red-500 transition"><i class="fas fa-trash text-[13px]"></i></button>
+                </div>
+                <h1 class="text-xl font-extrabold text-black mb-1 leading-tight" id="detail-judul"></h1>
+                <p class="text-[10px] text-gray-400 mb-6" id="detail-tgl-selesai"></p>
+                
+                <div class="bg-gray-50 p-4 rounded-[16px] mb-4 border border-gray-100/50">
+                    <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Deskripsi</h3>
+                    <p class="text-[12px] text-gray-700 leading-relaxed" id="detail-desc"></p>
+                </div>
+                
+                <div class="bg-gray-50 p-4 rounded-[16px] border border-gray-100/50">
+                    <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Tenggat Waktu Awal</h3>
+                    <p class="text-[12px] text-gray-700 font-bold" id="detail-deadline"></p>
+                </div>
             </div>
         </div>
 
@@ -201,33 +250,17 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-        import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-messaging.js";
+        import { app, auth, db, messaging } from "./firebase-config.js";
+        import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-messaging.js";
 
         const TUGAS_AMAN = "https://i.ibb.co.com/YB7zx85c/aman1.png"; 
         const TUGAS_SEDIH = "https://i.ibb.co.com/hRKKjg2k/dekat1.png"; 
         const TUGAS_TIDUR = "https://i.ibb.co.com/k6k6YCcJ/telat1.png"; 
-
         const KEGIATAN_AMAN = "https://i.ibb.co.com/xWVQD09/aman2.png"; 
         const KEGIATAN_SEDIH = "https://i.ibb.co.com/HfnPgQJ0/dekat2.png"; 
         const KEGIATAN_TIDUR = "https://i.ibb.co.com/LXTVMGFz/telat2.png"; 
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyBZ2DSnOWUnC5bRK6TS_uRKSSTrQpcu9yo",
-            authDomain: "taskify-92a86.firebaseapp.com",
-            projectId: "taskify-92a86",
-            storageBucket: "taskify-92a86.firebasestorage.app",
-            messagingSenderId: "1003689124923",
-            appId: "1:1003689124923:web:866fd6561a1c8f98e3281e"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const messaging = getMessaging(app);
-
         const LINK_PFP_DEFAULT = "https://i.ibb.co.com/DPPV77Kj/24a54c075ae7a7e7ae16d69e2766cefe.jpg";
 
         let currentUser = null;
@@ -235,6 +268,14 @@
         let tipeAktif = 'tugas';
         let unsubscribeDb = null;
         let fungsiAksiYa = null; 
+
+        setTimeout(() => {
+            const splash = document.getElementById('splash-overlay');
+            if(splash) {
+                splash.classList.add('opacity-0');
+                setTimeout(() => splash.remove(), 500);
+            }
+        }, 1500);
 
         window.tampilkanModal = (pesan, fungsiAksi) => {
             document.getElementById('modal-pesan').innerText = pesan;
@@ -403,6 +444,9 @@
                 semuaData = [];
                 snapshot.forEach(doc => semuaData.push({ id: doc.id, ...doc.data() }));
                 gambarList();
+                if(document.getElementById('page-riwayat').classList.contains('active')) {
+                    gambarRiwayat();
+                }
             });
         }
 
@@ -426,11 +470,11 @@
         function gambarList() {
             const wadah = document.getElementById('list-container');
             wadah.innerHTML = '';
-            let dataDitampilkan = semuaData.filter(d => d.tipe === tipeAktif);
+            let dataDitampilkan = semuaData.filter(d => d.tipe === tipeAktif && !d.selesai);
             dataDitampilkan.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
 
             if(dataDitampilkan.length === 0) {
-                wadah.innerHTML = `<p class="text-center text-gray-400 text-xs mt-10"></p>`;
+                wadah.innerHTML = `<p class="text-center text-gray-400 text-[11px] mt-10">Belum ada yang ditambahkan.</p>`;
                 return;
             }
 
@@ -452,13 +496,13 @@
                 const bgBtnSelesai = tipeAktif === 'tugas' ? 'bg-blue-50 text-blue-600 hover:bg-blue-100' : 'bg-orange-50 text-orange-600 hover:bg-orange-100';
 
                 wadah.innerHTML += `
-                    <div class="bg-white rounded-[20px] p-3 shadow-[0_2px_8px_rgba(0,0,0,0.03)] border border-gray-50 flex items-center gap-3.5 transition-all">
+                    <div class="bg-white rounded-2xl p-3 shadow-[0_2px_8px_rgba(0,0,0,0.03)] border border-gray-50 flex items-center gap-3.5 transition-all">
                         <img src="${imgGambar}" class="w-12 h-12 rounded-[12px] object-cover flex-shrink-0 cursor-pointer bg-gray-50" onclick="bukaFormEdit('${item.id}')" alt="Status">
                         
                         <div class="flex-1 min-w-0">
                             <div class="flex justify-between items-start">
                                 <h3 class="font-bold text-gray-800 text-[14px] truncate pr-2 cursor-pointer leading-tight" onclick="bukaFormEdit('${item.id}')">${item.judul}</h3>
-                                <button onclick="hapusData('${item.id}')" class="text-gray-300 hover:text-red-400 flex-shrink-0 mt-0.5"><i class="fas fa-trash text-[11px]"></i></button>
+                                <button onclick="hapusData('${item.id}', true)" class="text-gray-300 hover:text-red-400 flex-shrink-0 mt-0.5"><i class="fas fa-trash text-[11px]"></i></button>
                             </div>
                             <p class="text-[11px] text-gray-400 truncate mt-0.5 leading-tight">${item.deskripsi || 'Tidak ada deskripsi'}</p>
                             
@@ -472,6 +516,69 @@
                     </div>
                 `;
             });
+        }
+
+        window.bukaRiwayat = () => {
+            document.getElementById('riwayat-title').innerText = tipeAktif === 'tugas' ? 'Riwayat Tugas' : 'Riwayat Kegiatan';
+            gambarRiwayat();
+            pindahHalaman('page-riwayat');
+        }
+
+        window.gambarRiwayat = () => {
+            const wadah = document.getElementById('riwayat-container');
+            wadah.innerHTML = '';
+            
+            let dataRiwayat = semuaData.filter(d => d.tipe === tipeAktif && d.selesai);
+            dataRiwayat.sort((a, b) => new Date(b.tanggalSelesai) - new Date(a.tanggalSelesai));
+
+            if(dataRiwayat.length === 0) {
+                wadah.innerHTML = `<p class="text-center text-gray-400 text-[11px] mt-10">Belum ada riwayat tersimpan.</p>`;
+                return;
+            }
+
+            dataRiwayat.forEach(item => {
+                const tglSelesai = new Date(item.tanggalSelesai).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'});
+                const bgStatus = item.statusSelesai === 'Telat' ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-500';
+                
+                wadah.innerHTML += `
+                    <div class="bg-white rounded-2xl p-3 shadow-[0_2px_8px_rgba(0,0,0,0.03)] border border-gray-50 flex items-center gap-3.5 transition-all cursor-pointer hover:bg-gray-50/50" onclick="bukaDetailRiwayat('${item.id}')">
+                        <div class="w-10 h-10 rounded-[12px] bg-gray-50 border border-gray-100 flex justify-center items-center flex-shrink-0">
+                            <i class="fas fa-check text-gray-300 text-[14px]"></i>
+                        </div>
+                        <div class="flex-1 min-w-0 py-1">
+                            <h3 class="font-bold text-gray-600 text-[13px] truncate leading-tight">${item.judul}</h3>
+                            <p class="text-[9px] text-gray-400 truncate mt-1">Selesai: ${tglSelesai}</p>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-[6px] text-[8px] font-bold ${bgStatus} whitespace-nowrap ml-2">${item.statusSelesai}</span>
+                    </div>
+                `;
+            });
+        }
+
+        window.bukaDetailRiwayat = (id) => {
+            const data = semuaData.find(d => d.id === id);
+            if(!data) return;
+            
+            document.getElementById('detail-judul').innerText = data.judul;
+            document.getElementById('detail-desc').innerText = data.deskripsi || '-';
+            document.getElementById('detail-deadline').innerText = new Date(data.tanggal).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
+            
+            const tglSelesaiFormat = new Date(data.tanggalSelesai).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute:'2-digit'});
+            document.getElementById('detail-tgl-selesai').innerText = "Diselesaikan pada: " + tglSelesaiFormat;
+            
+            const statusEl = document.getElementById('detail-status');
+            statusEl.innerText = data.statusSelesai;
+            if(data.statusSelesai === 'Telat') {
+                statusEl.className = "px-3 py-1 rounded-[8px] text-[10px] font-bold bg-red-50 text-red-500";
+            } else {
+                statusEl.className = "px-3 py-1 rounded-[8px] text-[10px] font-bold bg-green-50 text-green-500";
+            }
+
+            document.getElementById('btn-hapus-detail').onclick = () => {
+                hapusData(id, false);
+            };
+
+            pindahHalaman('page-detail');
         }
 
         window.bukaFormTambah = () => {
@@ -504,7 +611,8 @@
                 judul: document.getElementById('form-judul').value,
                 deskripsi: document.getElementById('form-desc').value,
                 tanggal: document.getElementById('form-date').value,
-                tipe: tipeAktif
+                tipe: tipeAktif,
+                selesai: false
             };
 
             try {
@@ -519,11 +627,14 @@
             } catch(e) { tampilkanPesan("Gagal menyimpan."); }
         });
 
-        window.hapusData = (id) => {
+        window.hapusData = (id, dariBeranda = true) => {
             tampilkanModal("Apakah kamu yakin ingin menghapus data ini?", async () => {
                 try {
                     await deleteDoc(doc(db, 'users', currentUser.uid, 'tasks', id));
                     tampilkanPesan("Data berhasil dihapus!");
+                    if(!dariBeranda) {
+                        pindahHalaman('page-riwayat');
+                    }
                 } catch(e) {}
             });
         }
@@ -531,8 +642,16 @@
         window.selesaikanTugas = (id) => {
             tampilkanModal("Apakah kamu yakin sudah selesai?", async () => {
                 try {
-                    await deleteDoc(doc(db, 'users', currentUser.uid, 'tasks', id));
-                    tampilkanPesan("Terima kasih atas kerja kerasmu!");
+                    const data = semuaData.find(d => d.id === id);
+                    const sisa = hitungWaktu(data.tanggal);
+                    const statusAkhir = sisa.status === 'telat' ? 'Telat' : 'Tepat Waktu';
+                    
+                    await updateDoc(doc(db, 'users', currentUser.uid, 'tasks', id), {
+                        selesai: true,
+                        tanggalSelesai: new Date().toISOString(),
+                        statusSelesai: statusAkhir
+                    });
+                    tampilkanPesan("✨ Kamu sudah melakukan yang bagus! 🎉");
                 } catch (e) {}
             });
         }
