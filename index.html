@@ -1,1770 +1,1212 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
-<meta name="mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<title>Natsunime — Guild Anime System</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-<style>
-:root {
-  --bg:        #f4f6fb;
-  --panel:     #ffffff;
-  --panel2:    #eef1f7;
-  --panel3:    #e4e8f0;
-  --text:      #1c2333;
-  --muted:     #7b859c;
-  --primary:   #4d7cfe;
-  --primary2:  #3a63e0;
-  --accent:    #4d7cfe;
-  --border:    #e3e7f0;
-  --border2:   #ebeef5;
-  --maou-clr:      #8b5cf6;
-  --maou-glow:     rgba(139,92,246,0.12);
-  --bangsawan-clr: #d99a1f;
-  --bangsawan-glow:rgba(217,154,31,0.12);
-  --rakyat-clr:    var(--primary);
-  --rarity-C:   #8a93a6;
-  --rarity-R:   #3a8af0;
-  --rarity-SR:  #8b5cf6;
-  --rarity-SSR: #d99a1f;
-  --rarity-UR:  #e0473e;
-  --sidebar-w: 240px;
-  --radius: 14px;
-  --transition: 0.15s ease;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body {
-  height: 100%;
-  font-family: 'Poppins', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  overflow: hidden;
-  position: fixed;
-  inset: 0;
-  touch-action: manipulation;
-  -webkit-user-select: none;
-  user-select: none;
-}
-input, textarea { -webkit-user-select: text; user-select: text; }
-[data-lucide] { width: 18px; height: 18px; stroke-width: 2; vertical-align: middle; }
-.icon-lg [data-lucide] { width: 26px; height: 26px; }
-.icon-xl [data-lucide] { width: 36px; height: 36px; }
-#splash {
-  position: fixed; inset: 0; z-index: 9999;
-  background: var(--bg);
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 20px;
-  transition: opacity 0.6s ease;
-}
-#splash.hidden { opacity: 0; pointer-events: none; }
-#splash-logo {
-  width: 100px; height: 100px;
-  border-radius: 24px;
-  object-fit: cover;
-}
-#splash-logo-fallback {
-  width: 100px; height: 100px;
-  border-radius: 24px;
-  background: var(--primary);
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Poppins', sans-serif; font-weight:700;
-  font-size: 36px; font-weight: 700;
-}
-#splash h1 {
-  font-family: 'Poppins', sans-serif; font-weight:700;
-  font-size: 28px; font-weight: 700;
-  color: var(--primary2);
-}
-#splash p { color: var(--muted); font-size: 13px; }
-.splash-bar {
-  width: 180px; height: 3px;
-  background: var(--panel2);
-  border-radius: 10px; overflow: hidden;
-}
-.splash-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--primary), var(--accent));
-  border-radius: 10px;
-  animation: splashLoad 2.2s ease forwards;
-}
-@keyframes splashLoad {
-  0% { width: 0%; }
-  60% { width: 75%; }
-  100% { width: 100%; }
-}
-#toast-container {
-  position: fixed; top: 20px; right: 20px;
-  z-index: 8888; display: flex; flex-direction: column; gap: 8px;
-}
-.toast {
-  padding: 12px 18px; border-radius: var(--radius);
-  background: var(--panel); border: 1px solid var(--border);
-  color: var(--text); font-size: 13px; max-width: 280px;
-  animation: toastIn 0.3s ease;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-}
-.toast.success { border-color: #34d399; color: #34d399; }
-.toast.error   { border-color: #f87171; color: #f87171; }
-.toast.info    { border-color: var(--primary); }
-@keyframes toastIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
-.modal-overlay {
-  position: fixed; inset: 0; z-index: 7777;
-  background: rgba(0,0,0,0.7); 
-  display: flex; align-items: center; justify-content: center;
-  opacity: 0; pointer-events: none; transition: opacity 0.25s;
-}
-.modal-overlay.active { opacity: 1; pointer-events: all; }
-.modal-box {
-  background: var(--panel); border: 1px solid var(--border);
-  border-radius: 18px; padding: 28px; width: 90%; max-width: 420px;
-  transform: scale(0.95); transition: transform 0.25s;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-}
-.modal-overlay.active .modal-box { transform: scale(1); }
-.modal-box h3 {
-  font-family: 'Poppins', sans-serif; font-weight:700; font-size: 18px;
-  margin-bottom: 6px; color: var(--primary2);
-}
-.modal-box p { color: var(--muted); font-size: 13px; margin-bottom: 20px; line-height: 1.6; }
-.modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
-.btn {
-  padding: 9px 18px; border-radius: 8px; border: none;
-  font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
-  cursor: pointer; transition: var(--transition); display: inline-flex;
-  align-items: center; gap: 6px;
-}
-.btn-primary {
-  background: linear-gradient(135deg, var(--primary), var(--primary2));
-  color: #0b1220;
-}
-.btn-primary:hover { filter: brightness(1.1); }
-.btn-ghost {
-  background: transparent; border: 1px solid var(--border);
-  color: var(--muted);
-}
-.btn-ghost:hover { background: var(--panel2); color: var(--text); }
-.btn-danger {
-  background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3);
-  color: #f87171;
-}
-.btn-maou {
-  background: linear-gradient(135deg, #7c3aed, var(--maou-clr));
-  color: #fff;
-}
-.input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
-.input-group label { font-size: 12px; color: var(--muted); font-weight: 500; letter-spacing: 0.5px; }
-.input-group input, .input-group select, .input-group textarea {
-  background: var(--panel2); border: 1px solid var(--border);
-  border-radius: 8px; padding: 10px 14px;
-  color: var(--text); font-family: 'Inter', sans-serif; font-size: 14px;
-  outline: none; transition: border-color 0.2s;
-  width: 100%;
-}
-.input-group input:focus, .input-group select:focus, .input-group textarea:focus {
-  border-color: var(--primary);
-}
-.input-group select option { background: var(--panel); }
-#app {
-  display: flex; height: 100vh;
-  opacity: 0; transition: opacity 0.5s;
-}
-#app.visible { opacity: 1; }
-#auth-screen {
-  position: fixed; inset: 0; z-index: 5555;
-  display: flex; align-items: center; justify-content: center;
-  background: var(--bg);
-}
-#auth-screen.hidden { display: none; }
-.auth-card {
-  background: var(--panel); border: 1px solid var(--border);
-  border-radius: 20px; padding: 36px; width: 90%; max-width: 380px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-}
-.auth-logo {
-  text-align: center; margin-bottom: 24px;
-}
-.auth-logo-img {
-  width: 60px; height: 60px; border-radius: 14px; object-fit: cover;
-  margin-bottom: 12px;
-}
-.auth-logo-fallback {
-  width: 60px; height: 60px; border-radius: 14px;
-  background: var(--primary);
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Poppins', sans-serif; font-weight:700; font-size: 22px; font-weight: 700;
-  margin: 0 auto 12px;
-}
-.auth-logo h2 {
-  font-family: 'Poppins', sans-serif; font-weight:700; font-size: 20px;
-  color: var(--primary2);
-}
-.auth-logo p { color: var(--muted); font-size: 12px; margin-top: 4px; }
-.auth-tabs { display: flex; gap: 8px; margin-bottom: 22px; }
-.auth-tab {
-  flex: 1; padding: 9px; border-radius: 8px; border: 1px solid var(--border);
-  background: transparent; color: var(--muted); font-family: 'Poppins', sans-serif; font-weight:700;
-  font-size: 13px; cursor: pointer; transition: var(--transition);
-}
-.auth-tab.active {
-  background: rgba(90,169,255,0.12); border-color: var(--primary);
-  color: var(--primary2);
-}
-#auth-error { color: #f87171; font-size: 12px; margin-bottom: 10px; min-height: 16px; }
-.sidebar {
-  width: var(--sidebar-w); height: 100vh;
-  background: rgba(17,26,46,0.95); 
-  border-right: 1px solid var(--border);
-  display: flex; flex-direction: column;
-  padding: 20px 14px; gap: 6px;
-  transition: transform 0.3s ease;
-  z-index: 100; flex-shrink: 0;
-}
-.sidebar-logo {
-  display: flex; align-items: center; gap: 10px;
-  padding: 8px 6px 18px;
-  border-bottom: 1px solid var(--border2);
-  margin-bottom: 6px;
-}
-.sidebar-logo-img {
-  width: 36px; height: 36px; border-radius: 8px; object-fit: cover;
-}
-.sidebar-logo-fallback {
-  width: 36px; height: 36px; border-radius: 8px;
-  background: var(--primary);
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Poppins', sans-serif; font-weight:700; font-size: 14px; font-weight: 700; color: #fff;
-}
-.sidebar-logo span {
-  font-family: 'Poppins', sans-serif; font-weight:700; font-size: 16px; font-weight: 700;
-  color: var(--primary2);
-}
-.nav-item {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 12px; border-radius: var(--radius);
-  color: var(--muted); font-size: 13px; font-weight: 500;
-  cursor: pointer; transition: var(--transition);
-  border: 1px solid transparent;
-}
-.nav-item:hover { background: rgba(90,169,255,0.08); color: var(--text); }
-.nav-item.active {
-  background: rgba(90,169,255,0.12); color: var(--primary2);
-  border-color: rgba(90,169,255,0.2);
-}
-.nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
-.nav-section-label {
-  font-size: 10px; letter-spacing: 1.5px; color: var(--muted);
-  padding: 12px 12px 4px; font-weight: 600; text-transform: uppercase;
-}
-.sidebar-user {
-  margin-top: auto; padding-top: 14px; border-top: 1px solid var(--border2);
-}
-.sidebar-user-card {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px; border-radius: var(--radius);
-  background: var(--panel2); cursor: pointer;
-  transition: var(--transition); border: 1px solid var(--border);
-}
-.sidebar-user-card:hover { border-color: var(--primary); }
-.sidebar-avatar {
-  width: 36px; height: 36px; border-radius: 50%;
-  object-fit: cover; border: 2px solid var(--border);
-  flex-shrink: 0;
-}
-.sidebar-user-info { overflow: hidden; }
-.sidebar-username {
-  font-size: 13px; font-weight: 600; color: var(--text);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.sidebar-role-badge {
-  font-size: 10px; font-weight: 600; letter-spacing: 0.5px;
-  border-radius: 4px; padding: 1px 5px; display: inline-block; margin-top: 2px;
-}
-.role-maou      { color: var(--maou-clr); background: rgba(192,132,252,0.12); }
-.role-bangsawan { color: var(--bangsawan-clr); background: rgba(251,191,36,0.12); }
-.role-rakyat    { color: var(--primary); background: rgba(90,169,255,0.1); }
-.main {
-  flex: 1; height: 100vh;
-  overflow-y: auto; padding: 28px;
-  display: flex; flex-direction: column; gap: 24px;
-}
-.main::-webkit-scrollbar { width: 6px; }
-.main::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
-.page { display: none; flex-direction: column; gap: 20px; }
-.page.active { display: flex; }
-.page-header {
-  display: flex; align-items: flex-start; justify-content: space-between;
-  flex-wrap: wrap; gap: 12px;
-}
-.page-title {
-  font-family: 'Poppins', sans-serif; font-weight:700; font-size: 20px; font-weight: 700; color: var(--text);
-}
-.page-subtitle { font-size: 13px; color: var(--muted); margin-top: 2px; }
-.section-label {
-  font-size: 11px; letter-spacing: 1.5px; color: var(--muted);
-  font-weight: 600; text-transform: uppercase; margin-bottom: 12px;
-}
-.search-bar {
-  display: flex; gap: 10px; align-items: center;
-}
-.search-bar input {
-  flex: 1; background: var(--panel); border: 1px solid var(--border);
-  border-radius: 10px; padding: 10px 16px; color: var(--text);
-  font-family: 'Inter', sans-serif; font-size: 14px; outline: none;
-  transition: border-color 0.2s;
-}
-.search-bar input:focus { border-color: var(--primary); }
-.source-select {
-  background: var(--panel); border: 1px solid var(--border);
-  border-radius: 10px; padding: 10px 12px; color: var(--text);
-  font-family: 'Inter', sans-serif; font-size: 13px; outline: none;
-  flex-shrink: 0; cursor: pointer;
-}
-.anime-source-badge {
-  position: absolute; top: 8px; right: 8px;
-  padding: 2px 7px; border-radius: 6px; font-size: 9px; font-weight: 700;
-  background: rgba(0,0,0,0.55); color: var(--accent); 
-}
-.anime-source-badge.custom { color: #34d399; }
-.anime-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 16px;
-}
-.anime-card {
-  background: var(--panel); border: 1px solid var(--border);
-  border-radius: var(--radius); overflow: hidden;
-  cursor: pointer; transition: var(--transition);
-  position: relative;
-}
-.anime-card-poster {
-  width: 100%; aspect-ratio: 2/3; object-fit: cover;
-  background: var(--panel2);
-}
-.anime-card-poster-placeholder {
-  width: 100%; aspect-ratio: 2/3;
-  background: var(--panel2); display: flex; align-items: center;
-  justify-content: center; font-size: 32px;
-}
-.anime-card-body { padding: 10px; }
-.anime-card-title { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.4; }
-.anime-card-meta  { font-size: 11px; color: var(--muted); margin-top: 4px; }
-.anime-status-badge {
-  position: absolute; top: 8px; left: 8px;
-  padding: 2px 7px; border-radius: 6px; font-size: 10px; font-weight: 700;
-}
-.status-watched   { background: rgba(52,211,153,0.2); color: #34d399; }
-.status-watching  { background: rgba(90,169,255,0.2); color: var(--primary2); }
-.status-planned   { background: rgba(139,92,246,0.2); color: #a78bfa; }
-.marathon-list { display: flex; flex-direction: column; gap: 10px; }
-.marathon-item {
-  background: var(--panel); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 14px 16px;
-  display: flex; align-items: center; gap: 14px;
-  transition: var(--transition);
-}
-.marathon-item.done { opacity: 0.5; }
-.marathon-item.done .marathon-title { text-decoration: line-through; }
-.marathon-checkbox {
-  width: 20px; height: 20px; border-radius: 6px;
-  border: 2px solid var(--border); background: transparent;
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; transition: var(--transition);
-}
-.marathon-checkbox.checked { background: var(--primary); border-color: var(--primary); }
-.marathon-checkbox.checked::after { content: '✓'; color: #0b1220; font-size: 12px; font-weight: 700; }
-.marathon-poster { width: 44px; height: 60px; border-radius: 6px; object-fit: cover; flex-shrink: 0; background: var(--panel2); }
-.marathon-info { flex: 1; }
-.marathon-title { font-size: 14px; font-weight: 600; }
-.marathon-deadline { font-size: 11px; color: var(--muted); margin-top: 3px; }
-.marathon-deadline.overdue { color: #f87171; }
-.marathon-actions { display: flex; gap: 6px; }
-.icon-btn {
-  width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border);
-  background: transparent; color: var(--muted); cursor: pointer;
-  display: flex; align-items: center; justify-content: center; font-size: 13px;
-  transition: var(--transition);
-}
-.icon-btn:hover { background: var(--panel2); color: var(--text); }
-.gacha-banners {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
-}
-.gacha-banner {
-  background: var(--panel); border: 1px solid var(--border);
-  border-radius: 16px; padding: 20px; text-align: center;
-  cursor: pointer; transition: var(--transition); position: relative; overflow: hidden;
-}
-.gacha-banner::before {
-  content: ''; position: absolute; inset: 0;
-  background: transparent;
-  pointer-events: none;
-}
-.gacha-banner:hover { border-color: var(--primary); transform: translateY(-3px); }
-.gacha-banner-icon { font-size: 36px; margin-bottom: 10px; }
-.gacha-banner-name { font-family: 'Poppins', sans-serif; font-weight:700; font-size: 14px; font-weight: 700; }
-.gacha-banner-desc { font-size: 12px; color: var(--muted); margin-top: 4px; }
-.gacha-price-tag {
-  display: inline-block; margin-top: 12px;
-  padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;
-  background: rgba(90,169,255,0.1); color: var(--primary2);
-  border: 1px solid rgba(90,169,255,0.2);
-}
-.gacha-result-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px;
-}
-.gacha-result-card {
-  border-radius: var(--radius); overflow: hidden; text-align: center;
-  border: 2px solid;
-  animation: cardAppear 0.4s ease both;
-}
-@keyframes cardAppear { from { opacity:0; transform:scale(0.8) rotate(-3deg); } to { opacity:1; transform:scale(1) rotate(0deg); } }
-.gacha-result-card.C   { border-color: var(--rarity-C); }
-.gacha-result-img { width: 100%; aspect-ratio: 2/3; object-fit: cover; }
-.gacha-result-footer { padding: 6px; font-size: 11px; font-weight: 700; background: var(--panel); }
-.collection-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px;
-}
-.collection-card {
-  border-radius: var(--radius); overflow: hidden; border: 2px solid var(--border);
-  transition: var(--transition); position: relative;
-}
-.collection-card:hover { transform: translateY(-3px); }
-.collection-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; background: var(--panel2); }
-.collection-card-footer {
-  padding: 6px 8px; background: var(--panel);
-  font-size: 11px; font-weight: 600;
-}
-.rarity-label { font-weight: 700; }
-.rarity-C   { color: var(--rarity-C); }
-.rarity-R   { color: var(--rarity-R); }
-.rarity-SR  { color: var(--rarity-SR); }
-.rarity-SSR { color: var(--rarity-SSR); }
-.rarity-UR  { color: var(--rarity-UR); }
-.profile-hero {
-  border-radius: 18px; padding: 28px; position: relative; overflow: hidden;
-  background: var(--panel); border: 1px solid var(--border);
-}
-.profile-hero.maou-theme {
-  background: #f6f1ff;
-  border-color: var(--maou-clr);
-}
-.profile-hero.bangsawan-theme {
-  background: #fdf6e8;
-  border-color: var(--bangsawan-clr);
-}
-.profile-hero-bg {
-  position: absolute; inset: 0; opacity: 0.06;
-  background: radial-gradient(circle at 70% 50%, var(--primary), transparent);
-  pointer-events: none;
-}
-.profile-top { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; position: relative; }
-.profile-avatar-wrap { position: relative; flex-shrink: 0; }
-.profile-avatar {
-  width: 90px; height: 90px; border-radius: 50%; object-fit: cover;
-  border: 3px solid var(--border);
-}
-.profile-info { flex: 1; }
-.profile-username {
-  font-family: 'Poppins', sans-serif; font-weight:700; font-size: 22px; font-weight: 700;
-}
-.profile-username.maou-text      { color: var(--maou-clr); }
-.profile-username.bangsawan-text { color: var(--bangsawan-clr); }
-.profile-badges { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
-.badge {
-  padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;
-  border: 1px solid;
-}
-.badge-maou      { color: var(--maou-clr); border-color: var(--maou-clr); background: rgba(192,132,252,0.1); }
-.badge-bangsawan { color: var(--bangsawan-clr); border-color: var(--bangsawan-clr); background: rgba(251,191,36,0.1); }
-.badge-rank      { color: var(--accent); border-color: var(--accent); background: rgba(155,211,255,0.08); }
-.badge-rakyat    { color: var(--primary); border-color: var(--primary); background: rgba(90,169,255,0.1); }
-.rank-bar-wrap { margin-top: 16px; }
-.rank-bar-meta {
-  display: flex; justify-content: space-between;
-  font-size: 12px; color: var(--muted); margin-bottom: 6px;
-}
-.rank-bar {
-  height: 8px; background: var(--panel2); border-radius: 10px;
-  overflow: hidden; border: 1px solid var(--border);
-}
-.rank-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--primary), var(--accent));
-  border-radius: 10px; transition: width 0.8s ease;
-}
-.eris-widget {
-  display: flex; align-items: center; gap: 10px;
-  background: var(--panel2); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 12px 16px;
-}
-.eris-icon { font-size: 22px; }
-.eris-info { flex: 1; }
-.eris-amount { font-size: 22px; font-weight: 700; color: var(--bangsawan-clr); font-family: 'Poppins', sans-serif; font-weight:700; }
-.eris-label  { font-size: 11px; color: var(--muted); }
-.profile-stats {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px;
-}
-.stat-card {
-  background: var(--panel); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 16px; text-align: center;
-}
-.stat-value { font-family: 'Poppins', sans-serif; font-weight:700; font-size: 24px; font-weight: 700; color: var(--primary2); }
-.stat-label { font-size: 11px; color: var(--muted); margin-top: 4px; }
-.daily-btn {
-  display: flex; align-items: center; gap: 10px;
-  background: linear-gradient(135deg, rgba(52,211,153,0.1), rgba(90,169,255,0.1));
-  border: 1px solid rgba(52,211,153,0.3); border-radius: var(--radius);
-  padding: 14px 20px; cursor: pointer; transition: var(--transition);
-  width: 100%;
-}
-.daily-btn:hover { border-color: #34d399; }
-.daily-btn.claimed { opacity: 0.5; cursor: not-allowed; }
-.daily-info h4 { font-size: 14px; font-weight: 700; color: #34d399; }
-.daily-info p  { font-size: 12px; color: var(--muted); margin-top: 2px; }
-.users-list { display: flex; flex-direction: column; gap: 8px; }
-.user-row {
-  display: flex; align-items: center; gap: 12px;
-  background: var(--panel); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 12px 16px;
-  cursor: pointer; transition: var(--transition);
-}
-.user-row:hover { border-color: var(--primary); background: var(--panel2); }
-.user-row-avatar { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
-.user-row-info { flex: 1; }
-.user-row-name  { font-size: 14px; font-weight: 600; }
-.user-row-meta  { font-size: 12px; color: var(--muted); margin-top: 2px; }
-.user-row-rank  { font-size: 12px; color: var(--accent); font-weight: 600; }
-.admin-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px;
-}
-.admin-card {
-  background: var(--panel);
-  border: 1px solid var(--border); border-radius: 16px;
-  padding: 20px; cursor: pointer; transition: var(--transition);
-}
-.admin-card-icon { font-size: 28px; margin-bottom: 10px; }
-.admin-card-title { font-family: 'Poppins', sans-serif; font-weight:700; font-size: 14px; font-weight: 700; color: var(--maou-clr); }
-.admin-card-desc  { font-size: 12px; color: var(--muted); margin-top: 4px; }
-.table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-th { background: var(--panel2); padding: 10px 14px; text-align: left; color: var(--muted); font-weight: 600; font-size: 11px; letter-spacing: 0.5px; }
-td { padding: 10px 14px; border-top: 1px solid var(--border2); vertical-align: middle; }
-tr:hover td { background: var(--panel2); }
-.table-img { width: 36px; height: 50px; object-fit: cover; border-radius: 6px; }
-.bottom-nav {
-  display: none; position: fixed; bottom: 0; left: 0; right: 0;
-  background: rgba(17,26,46,0.97); 
-  border-top: 1px solid var(--border);
-  padding: 8px 0 12px; z-index: 200;
-}
-.bottom-nav-items { display: flex; justify-content: space-around; }
-.bottom-nav-item {
-  display: flex; flex-direction: column; align-items: center;
-  gap: 3px; padding: 4px 12px; cursor: pointer;
-  color: var(--muted); font-size: 10px; font-weight: 500;
-  transition: var(--transition);
-}
-.bottom-nav-item .bn-icon { font-size: 20px; }
-.bottom-nav-item.active { color: var(--primary2); }
-@media (max-width: 768px) {
-  .sidebar { display: none; }
-  .bottom-nav { display: block; }
-  .main { padding: 16px 14px 80px; }
-  .anime-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
-  .gacha-banners { grid-template-columns: repeat(2, 1fr); }
-  .profile-stats { grid-template-columns: repeat(2, 1fr); }
-  .admin-grid { grid-template-columns: 1fr; }
-}
-.empty-state {
-  text-align: center; padding: 50px 20px; color: var(--muted);
-}
-.empty-state-icon { font-size: 48px; margin-bottom: 12px; }
-.empty-state h3 { font-family: 'Poppins', sans-serif; font-weight:700; font-size: 16px; margin-bottom: 6px; color: var(--text); }
-.empty-state p  { font-size: 13px; }
-.tabs { display: flex; gap: 6px; flex-wrap: wrap; }
-.tab-btn {
-  padding: 7px 16px; border-radius: 20px; border: 1px solid var(--border);
-  background: transparent; color: var(--muted); font-size: 12px; font-weight: 600;
-  cursor: pointer; transition: var(--transition);
-}
-.tab-btn.active { background: rgba(90,169,255,0.12); border-color: var(--primary); color: var(--primary2); }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Taskify</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        function kunciTinggiLayar() {
+            let vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+        kunciTinggiLayar();
+        window.addEventListener('resize', kunciTinggiLayar);
+    </script>
+    <style>
+        :root {
+            --blue-start: #3b82f6;
+            --blue-end: #06b6d4;
+            --bg-main: #f0f4ff;
+            --card-bg: #ffffff;
+            --radius-card: 24px;
+            --radius-pill: 999px;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            background: var(--bg-main);
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+        }
+
+        #app-container {
+            width: 100%;
+            max-width: 430px;
+            height: 100vh;
+            height: calc(var(--vh, 1vh) * 100);
+            margin: 0 auto;
+            background: var(--bg-main);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 60px rgba(59,130,246,0.10);
+        }
+
+        /* ── INPUTS ─────────────────────────────── */
+        .input-pill {
+            width: 100%;
+            background: #f8faff;
+            border: 2px solid #e8edff;
+            border-radius: var(--radius-pill);
+            padding: 13px 20px;
+            font-size: 13px;
+            font-family: 'Poppins', sans-serif;
+            outline: none;
+            transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+            color: #1e293b;
+        }
+        .input-pill:focus {
+            border-color: #3b82f6;
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(59,130,246,0.10);
+        }
+        textarea.input-pill { border-radius: 18px; resize: none; }
+
+        /* ── BUTTONS ─────────────────────────────── */
+        .btn-gradient {
+            background: linear-gradient(135deg, var(--blue-start), var(--blue-end));
+            color: white;
+            border-radius: var(--radius-pill);
+            padding: 14px 24px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            text-align: center;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(59,130,246,0.35);
+            transition: transform 0.15s, box-shadow 0.15s;
+            letter-spacing: 0.02em;
+        }
+        .btn-gradient:active { transform: scale(0.96); box-shadow: 0 4px 12px rgba(59,130,246,0.2); }
+        .btn-gradient:hover { box-shadow: 0 12px 32px rgba(59,130,246,0.45); }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #fff;
+            color: #64748b;
+            border: none;
+            border-radius: var(--radius-pill);
+            padding: 9px 18px 9px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .btn-back:active { transform: scale(0.95); }
+
+        /* ── PAGES ─────────────────────────────── */
+        .page {
+            display: none;
+            flex-direction: column;
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg-main);
+            z-index: 10;
+            height: 100%;
+        }
+        .page.active { display: flex; }
+
+        /* ── SCROLLABLE ─────────────────────────── */
+        .scrollable-area {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-bottom: 120px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .scrollable-area::-webkit-scrollbar { display: none; }
+
+        /* ── TOAST ─────────────────────────────── */
+        #toast {
+            position: fixed;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #1e293b, #334155);
+            color: white;
+            padding: 12px 28px;
+            border-radius: var(--radius-pill);
+            z-index: 99999;
+            transition: top 0.4s cubic-bezier(0.34,1.56,0.64,1);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            white-space: nowrap;
+        }
+        #toast.show { top: 20px; }
+
+        /* ── SPLASH ─────────────────────────────── */
+        #splash-overlay {
+            background: linear-gradient(160deg, #1e40af 0%, #0891b2 100%);
+        }
+
+        /* ── LOADING SPINNER ─────────────────────── */
+        .spinner {
+            width: 48px; height: 48px;
+            border: 4px solid rgba(255,255,255,0.2);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── CARD TASK ──────────────────────────── */
+        .task-card {
+            background: white;
+            border-radius: 20px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 4px 16px rgba(59,130,246,0.07);
+            border: 1.5px solid #f1f5ff;
+            transition: transform 0.15s, box-shadow 0.15s;
+            animation: slideUp 0.3s ease both;
+        }
+        .task-card:active { transform: scale(0.98); }
+        .task-card:hover { box-shadow: 0 8px 24px rgba(59,130,246,0.12); }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── HEADER GRADIENT ─────────────────────── */
+        .header-card {
+            background: linear-gradient(160deg, #1e40af 0%, #0891b2 100%);
+            border-radius: 0 0 32px 32px;
+            padding: 48px 24px 28px;
+            position: relative;
+            overflow: hidden;
+            z-index: 10;
+        }
+        .header-card::before {
+            content: '';
+            position: absolute;
+            top: -40px; right: -40px;
+            width: 160px; height: 160px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.07);
+        }
+        .header-card::after {
+            content: '';
+            position: absolute;
+            bottom: -30px; left: -20px;
+            width: 100px; height: 100px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+        }
+
+        /* ── TAB BUTTONS ─────────────────────────── */
+        .tab-btn {
+            flex: 1;
+            padding: 11px 0;
+            border-radius: var(--radius-pill);
+            font-size: 12.5px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            border: none;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+            letter-spacing: 0.01em;
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--blue-start), var(--blue-end));
+            color: white;
+            box-shadow: 0 6px 18px rgba(59,130,246,0.35);
+            transform: scale(1.02);
+        }
+        .tab-btn.inactive {
+            background: white;
+            color: #94a3b8;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        /* ── FAB ADD BUTTON ─────────────────────── */
+        .fab-add {
+            position: absolute;
+            bottom: 24px; left: 24px; right: 24px;
+            background: white;
+            border: none;
+            border-radius: 18px;
+            height: 56px;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            color: #1e293b;
+            cursor: pointer;
+            box-shadow: 0 8px 32px rgba(59,130,246,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            z-index: 20;
+        }
+        .fab-add:active { transform: scale(0.97); }
+        .fab-add:hover { box-shadow: 0 12px 40px rgba(59,130,246,0.22); }
+
+        .fab-icon {
+            width: 32px; height: 32px;
+            background: linear-gradient(135deg, var(--blue-start), var(--blue-end));
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            color: white;
+            font-size: 18px;
+            font-weight: 900;
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(59,130,246,0.35);
+        }
+
+        /* ── HISTORY CARD ─────────────────────────── */
+        .history-card {
+            background: white;
+            border-radius: 18px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 3px 12px rgba(59,130,246,0.06);
+            border: 1.5px solid #f1f5ff;
+            cursor: pointer;
+            transition: all 0.15s;
+            animation: slideUp 0.3s ease both;
+        }
+        .history-card:active { transform: scale(0.98); }
+
+        /* ── MODAL ─────────────────────────────── */
+        #modal-konfirmasi {
+            backdrop-filter: blur(4px);
+        }
+
+        /* ── LOGIN CARD ─────────────────────────── */
+        .auth-card {
+            background: white;
+            border-radius: 32px;
+            padding: 36px 28px;
+            box-shadow: 0 24px 60px rgba(59,130,246,0.12);
+            border: 1.5px solid #f0f4ff;
+            width: 100%;
+            max-width: 360px;
+        }
+
+        /* ── BADGE DEADLINE ─────────────────────── */
+        .badge {
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+        .badge-aman-tugas { background: #eff6ff; color: #3b82f6; }
+        .badge-aman-kegiatan { background: #fff7ed; color: #f97316; }
+        .badge-dekat-tugas { background: #ecfeff; color: #0891b2; }
+        .badge-dekat-kegiatan { background: #fefce8; color: #ca8a04; }
+        .badge-telat { background: #fff1f2; color: #f43f5e; }
+
+        /* ── PROFILE HEADER ─────────────────────── */
+        .profile-header {
+            background: linear-gradient(160deg, #1e40af 0%, #0891b2 100%);
+            border-radius: 0 0 32px 32px;
+            padding: 48px 24px 36px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ── EMPTY STATE ─────────────────────────── */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 48px 24px;
+            gap: 12px;
+        }
+        .empty-icon {
+            width: 64px; height: 64px;
+            background: linear-gradient(135deg, #eff6ff, #f0f9ff);
+            border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px;
+        }
+
+        /* ── STAT PILL ─────────────────────────── */
+        .stat-pill {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(8px);
+            border-radius: var(--radius-pill);
+            padding: 8px 16px;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        /* ── DETAIL PAGE ─────────────────────────── */
+        .detail-section {
+            background: #f8faff;
+            border-radius: 18px;
+            padding: 16px 18px;
+            border: 1.5px solid #e8edff;
+        }
+
+        /* ── STAGGER ANIMATION FOR LIST ─────────── */
+        .task-card:nth-child(1) { animation-delay: 0ms; }
+        .task-card:nth-child(2) { animation-delay: 40ms; }
+        .task-card:nth-child(3) { animation-delay: 80ms; }
+        .task-card:nth-child(4) { animation-delay: 120ms; }
+        .task-card:nth-child(5) { animation-delay: 160ms; }
+
+        /* ── RIPPLE ON TAP ─────────────────────── */
+        .ripple-host { position: relative; overflow: hidden; }
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple-anim 0.6s linear;
+            background: rgba(59,130,246,0.15);
+            pointer-events: none;
+        }
+        @keyframes ripple-anim {
+            to { transform: scale(4); opacity: 0; }
+        }
+
+        /* ── PROGRESS BAR ─────────────────────── */
+        .progress-track { background: rgba(255,255,255,0.2); border-radius: 4px; height: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: white; border-radius: 4px; transition: width 0.5s ease; }
+    </style>
 </head>
 <body>
-<div id="splash">
-  <div id="splash-logo-fallback"><span data-lucide="moon" class="icon-xl"></span></div>
-  <h1>Natsunime</h1>
-  <p>Guild Anime System</p>
-  <div class="splash-bar"><div class="splash-fill"></div></div>
-</div>
-<div id="toast-container"></div>
-<div class="modal-overlay" id="modal">
-  <div class="modal-box">
-    <h3 id="modal-title">Modal</h3>
-    <p id="modal-body">Content</p>
-    <div class="modal-actions" id="modal-actions"></div>
-  </div>
-</div>
-<div id="auth-screen">
-  <div class="auth-card">
-    <div class="auth-logo">
-      <div class="auth-logo-fallback" id="auth-logo-fallback"><span data-lucide="moon"></span></div>
-      <h2>Natsunime</h2>
-      <p>Guild Anime System · Log in to continue</p>
-    </div>
-    <div class="auth-tabs">
-      <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Login</button>
-      <button class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">Register</button>
-    </div>
-    <div id="auth-error"></div>
-    <div id="login-form">
-      <div class="input-group">
-        <label>Username</label>
-        <input type="text" id="login-username" placeholder="Masukkan username" autocomplete="off"/>
-      </div>
-      <div class="input-group">
-        <label>Password</label>
-        <input type="password" id="login-password" placeholder="••••••••"/>
-      </div>
-      <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="doLogin()">Masuk ke Guild</button>
-    </div>
-    <div id="register-form" style="display:none">
-      <div class="input-group">
-        <label>Username</label>
-        <input type="text" id="reg-username" placeholder="Pilih username unik"/>
-      </div>
-      <div class="input-group">
-        <label>Password</label>
-        <input type="password" id="reg-password" placeholder="Min. 6 karakter"/>
-      </div>
-      <div class="input-group">
-        <label>Konfirmasi Password</label>
-        <input type="password" id="reg-confirm" placeholder="Ulangi password"/>
-      </div>
-      <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="doRegister()">Bergabung ke Guild</button>
-    </div>
-  </div>
-</div>
-<div id="app">
-  <nav class="sidebar">
-    <div class="sidebar-logo">
-      <div class="sidebar-logo-fallback" id="sidebar-logo-fallback"><span data-lucide="moon"></span></div>
-      <span>Natsunime</span>
-    </div>
-    <span class="nav-section-label">Utama</span>
-    <div class="nav-item active" onclick="navigate('home')" id="nav-home">
-      <span class="nav-icon" data-lucide="home"></span> Beranda
-    </div>
-    <div class="nav-item" onclick="navigate('marathon')" id="nav-marathon">
-      <span class="nav-icon" data-lucide="list-checks"></span> Marathon
-    </div>
-    <div class="nav-item" onclick="navigate('gacha')" id="nav-gacha">
-      <span class="nav-icon" data-lucide="dice-5"></span> Gacha
-    </div>
-    <div class="nav-item" onclick="navigate('collection')" id="nav-collection">
-      <span class="nav-icon" data-lucide="layout-grid"></span> Koleksi
-    </div>
-    <span class="nav-section-label">Komunitas</span>
-    <div class="nav-item" onclick="navigate('users')" id="nav-users">
-      <span class="nav-icon" data-lucide="users"></span> Guild Members
-    </div>
-    <span class="nav-section-label">Akun</span>
-    <div class="nav-item" onclick="navigate('profile')" id="nav-profile">
-      <span class="nav-icon" data-lucide="user"></span> Profil
-    </div>
-    <div class="nav-item" id="nav-admin" style="display:none" onclick="navigate('admin')">
-      <span class="nav-icon" data-lucide="crown"></span> Admin Panel
-    </div>
-    <div class="sidebar-user">
-      <div class="sidebar-user-card" onclick="navigate('profile')">
-        <img class="sidebar-avatar" id="sidebar-avatar" src="" alt="avatar"/>
-        <div class="sidebar-user-info">
-          <div class="sidebar-username" id="sidebar-username">—</div>
-          <div id="sidebar-role-badge" class="sidebar-role-badge">—</div>
-        </div>
-      </div>
-    </div>
-  </nav>
-  <main class="main" id="main-content">
-    <section class="page active" id="page-home">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Daftar Anime</div>
-          <div class="page-subtitle">Pantau progress tontonanmu seperti seorang petualang sejati.</div>
-        </div>
-        <button class="btn btn-primary" onclick="navigate('browse')"><span data-lucide="plus"></span> Tambah Anime</button>
-      </div>
-      <div class="search-bar">
-        <input type="text" id="anime-search" placeholder="Cari judul anime di daftarmu..." oninput="filterAnimeList()"/>
-        <div class="tabs" style="flex-shrink:0">
-          <button class="tab-btn active" onclick="filterByStatus('all',this)">Semua</button>
-          <button class="tab-btn" onclick="filterByStatus('watching',this)">Watching</button>
-          <button class="tab-btn" onclick="filterByStatus('watched',this)">Watched</button>
-        </div>
-      </div>
-      <div class="anime-grid" id="anime-grid"></div>
-    </section>
-    <section class="page" id="page-browse">
-      <div class="page-header">
-        <div>
-          <button class="btn btn-ghost" onclick="navigate('home')"><span data-lucide="arrow-left"></span> Kembali</button>
-          <div class="page-title" style="margin-top:10px">Cari & Tambah Anime</div>
-          <div class="page-subtitle">Jelajahi ribuan anime, klik untuk menambahkan ke daftarmu.</div>
-        </div>
-      </div>
-      <div class="search-bar">
-        <input type="text" id="browse-search" placeholder="Cari judul anime..." onkeydown="if(event.key==='Enter'){event.preventDefault();doBrowseSearch();}"/>
-        <button class="btn btn-primary" onclick="doBrowseSearch()"><span data-lucide="search"></span> Cari</button>
-      </div>
-      <div class="anime-grid" id="browse-grid"></div>
-    </section>
-    <section class="page" id="page-marathon">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Marathon Wishlist</div>
-          <div class="page-subtitle">Rencanakan marathon-mu dengan tenggat waktu.</div>
-        </div>
-        <button class="btn btn-primary" onclick="openAddMarathonModal()"><span data-lucide="plus"></span> Tambah</button>
-      </div>
-      <div class="marathon-list" id="marathon-list"></div>
-    </section>
-    <section class="page" id="page-gacha">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Gacha Banner</div>
-          <div class="page-subtitle">Gunakan Eris untuk mendapatkan Waifu & Husbu legendaris!</div>
-        </div>
-        <div class="eris-widget" style="min-width:180px">
-          <span class="eris-icon" data-lucide="coins"></span>
-          <div class="eris-info">
-            <div class="eris-amount" id="gacha-eris-display">0</div>
-            <div class="eris-label">Eris tersedia</div>
-          </div>
-        </div>
-      </div>
-      <div id="gacha-result-area" style="display:none">
-        <div class="section-label">Hasil Gacha</div>
-        <div class="gacha-result-grid" id="gacha-result-grid"></div>
-        <div style="margin-top:14px">
-          <button class="btn btn-ghost" onclick="closeGachaResult()">← Kembali ke Banner</button>
-        </div>
-      </div>
-      <div id="gacha-banners-area">
-        <div class="gacha-banners" id="gacha-banners"></div>
-      </div>
-    </section>
-    <section class="page" id="page-collection">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Koleksiku</div>
-          <div class="page-subtitle">Semua kartu Waifu & Husbu yang kamu miliki.</div>
-        </div>
-      </div>
-      <div class="tabs" id="collection-tabs">
-        <button class="tab-btn active" onclick="filterCollection('all',this)">Semua</button>
-        <button class="tab-btn" onclick="filterCollection('waifu_card',this)">Waifu Card</button>
-        <button class="tab-btn" onclick="filterCollection('husbu_card',this)">Husbu Card</button>
-        <button class="tab-btn" onclick="filterCollection('waifu_pfp',this)">Waifu PFP</button>
-        <button class="tab-btn" onclick="filterCollection('husbu_pfp',this)">Husbu PFP</button>
-      </div>
-      <div class="collection-grid" id="collection-grid"></div>
-    </section>
-    <section class="page" id="page-users">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Guild Members</div>
-          <div class="page-subtitle">Seluruh anggota guild Natsunime.</div>
-        </div>
-      </div>
-      <div class="search-bar" style="margin-bottom:4px">
-        <input type="text" id="user-search" placeholder="Cari member..." oninput="filterUsers()"/>
-      </div>
-      <div class="users-list" id="users-list"></div>
-    </section>
-    <section class="page" id="page-profile">
-      <div id="profile-content"></div>
-    </section>
-    <section class="page" id="page-admin">
-      <div class="page-header">
-        <div>
-          <div class="page-title" style="color:var(--maou-clr)"><span data-lucide="crown"></span> Admin Panel — Maou</div>
-          <div class="page-subtitle">Pengawasan dan moderasi guild.</div>
-        </div>
-      </div>
-      <div class="admin-grid">
-        <div class="admin-card" onclick="openAdminSection('manage-gacha')">
-          <div class="admin-card-icon" data-lucide="list"></div>
-          <div class="admin-card-title">Kelola Gacha Pool</div>
-          <div class="admin-card-desc">Lihat dan hapus item dari pool gacha.</div>
-        </div>
-        <div class="admin-card" onclick="openAdminSection('manage-users')">
-          <div class="admin-card-icon" data-lucide="users"></div>
-          <div class="admin-card-title">Kelola Member</div>
-          <div class="admin-card-desc">Edit role atau tambah Eris member.</div>
-        </div>
-      </div>
-      <div id="admin-section-content" style="margin-top:20px"></div>
-    </section>
-  </main>
-</div>
-<nav class="bottom-nav">
-  <div class="bottom-nav-items">
-    <div class="bottom-nav-item active" id="bn-home" onclick="navigate('home')">
-      <span class="bn-icon" data-lucide="home"></span><span>Beranda</span>
-    </div>
-    <div class="bottom-nav-item" id="bn-marathon" onclick="navigate('marathon')">
-      <span class="bn-icon" data-lucide="list-checks"></span><span>Marathon</span>
-    </div>
-    <div class="bottom-nav-item" id="bn-gacha" onclick="navigate('gacha')">
-      <span class="bn-icon" data-lucide="dice-5"></span><span>Gacha</span>
-    </div>
-    <div class="bottom-nav-item" id="bn-collection" onclick="navigate('collection')">
-      <span class="bn-icon" data-lucide="layout-grid"></span><span>Koleksi</span>
-    </div>
-    <div class="bottom-nav-item" id="bn-profile" onclick="navigate('profile')">
-      <span class="bn-icon" data-lucide="user"></span><span>Profil</span>
-    </div>
-  </div>
-</nav>
-<script type="module">
-import { initializeApp }       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-  getFirestore, collection, doc,
-  getDoc, getDocs, setDoc, addDoc,
-  updateDoc, deleteDoc, query, orderBy
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { FIREBASE_CONFIG, ASSETS } from "./firebase-config.js";
-const app = initializeApp(FIREBASE_CONFIG);
-const db  = getFirestore(app);
-const RANKS = [
-  { name: "Villager",    minPts: 0   },
-  { name: "Adventurer",  minPts: 20  },
-  { name: "Knight",      minPts: 60  },
-  { name: "Hero",        minPts: 150 },
-  { name: "MC",          minPts: 350 },
-];
-const RARITY_PTS = { C:1, R:3, SR:7, SSR:15, UR:30 };
-const GACHA_PRICE    = { rakyat: 5, bangsawan: 3 };
-const DAILY_REWARD   = 10;
-const DEFAULT_AVATAR = ASSETS.DEFAULT_AVATAR_URL || "https://i.pravatar.cc/150?u=default_natsunime";
-let currentUser     = null;
-let allUsers        = [];
-let gachaPool       = [];
-let currentPage     = 'home';
-let animeStatusFilter = 'all';
-let animeSourceFilter = 'all';
-let addAnimeTab       = 'jikan';
-let collectionFilter  = 'all';
-function refreshIcons() {
-  try { if (window.lucide) window.lucide.createIcons(); } catch(e) {}
-}
-window.refreshIcons = refreshIcons;
-function toast(msg, type='info') {
-  const el = document.createElement('div');
-  el.className = `toast ${type}`;
-  el.textContent = msg;
-  document.getElementById('toast-container').appendChild(el);
-  setTimeout(() => el.remove(), 3500);
-}
-function showModal(title, body, actions=[]) {
-  document.getElementById('modal-title').textContent = title;
-  document.getElementById('modal-body').innerHTML = body;
-  const actEl = document.getElementById('modal-actions');
-  actEl.innerHTML = '';
-  actions.forEach(a => {
-    const btn = document.createElement('button');
-    btn.className = `btn ${a.cls || 'btn-ghost'}`;
-    btn.textContent = a.label;
-    btn.onclick = a.fn;
-    actEl.appendChild(btn);
-  });
-  document.getElementById('modal').classList.add('active');
-}
-function closeModal() {
-  document.getElementById('modal').classList.remove('active');
-}
-document.getElementById('modal').addEventListener('click', e => {
-  if (e.target === document.getElementById('modal')) closeModal();
-});
-function getRank(pts) {
-  let r = RANKS[0];
-  for (const rank of RANKS) { if (pts >= rank.minPts) r = rank; }
-  return r;
-}
-function getNextRank(pts) {
-  for (let i = RANKS.length - 1; i >= 0; i--) {
-    if (pts >= RANKS[i].minPts) {
-      return RANKS[i + 1] || null;
-    }
-  }
-  return RANKS[1];
-}
-function getRankProgress(pts) {
-  const cur  = getRank(pts);
-  const next = getNextRank(pts);
-  if (!next) return 100;
-  return Math.min(100, Math.round(((pts - cur.minPts) / (next.minPts - cur.minPts)) * 100));
-}
-function roleBadgeHtml(role) {
-  if (role === 'maou')      return '<span class="badge badge-maou">👑 Maou</span>';
-  if (role === 'bangsawan') return '<span class="badge badge-bangsawan">💎 Bangsawan</span>';
-  return '<span class="badge badge-rakyat">⚔️ Rakyat</span>';
-}
-function roleClass(role) {
-  if (role === 'maou') return 'role-maou';
-  if (role === 'bangsawan') return 'role-bangsawan';
-  return 'role-rakyat';
-}
-function roleLabel(role) {
-  if (role === 'maou') return '👑 Maou';
-  if (role === 'bangsawan') return '💎 Bangsawan';
-  return '⚔️ Rakyat';
-}
-function safeImg(url, fallback) {
-  return (url && url.startsWith('http')) ? url : (fallback || DEFAULT_AVATAR);
-}
-function switchAuthTab(tab) {
-  document.getElementById('login-form').style.display    = tab === 'login'    ? '' : 'none';
-  document.getElementById('register-form').style.display = tab === 'register' ? '' : 'none';
-  document.getElementById('tab-login').classList.toggle('active',    tab === 'login');
-  document.getElementById('tab-register').classList.toggle('active', tab === 'register');
-  document.getElementById('auth-error').textContent = '';
-}
-window.switchAuthTab = switchAuthTab;
-async function doLogin() {
-  const username = document.getElementById('login-username').value.trim().toLowerCase();
-  const password = document.getElementById('login-password').value;
-  const errEl    = document.getElementById('auth-error');
-  if (!username || !password) { errEl.textContent = 'Isi semua field.'; return; }
-  try {
-    const snap = await getDoc(doc(db, 'users', username));
-    if (!snap.exists()) { errEl.textContent = 'Username tidak ditemukan.'; return; }
-    const data = snap.data();
-    if (data.password !== password) { errEl.textContent = 'Password salah.'; return; }
-    currentUser = { id: username, ...data };
-    await updateDoc(doc(db, 'users', username), { lastLogin: Date.now() });
-    onLoginSuccess();
-  } catch (e) {
-    errEl.textContent = 'Gagal terhubung ke server. Cek koneksi dan Firebase config.';
-    console.error(e);
-  }
-}
-window.doLogin = doLogin;
-async function doRegister() {
-  const username = document.getElementById('reg-username').value.trim().toLowerCase();
-  const password = document.getElementById('reg-password').value;
-  const confirm  = document.getElementById('reg-confirm').value;
-  const errEl    = document.getElementById('auth-error');
-  if (!username || !password) { errEl.textContent = 'Isi semua field.'; return; }
-  if (password !== confirm)    { errEl.textContent = 'Password tidak cocok.'; return; }
-  if (password.length < 6)    { errEl.textContent = 'Password minimal 6 karakter.'; return; }
-  if (!/^[a-z0-9_]{3,20}$/.test(username)) {
-    errEl.textContent = 'Username: 3-20 karakter, huruf kecil/angka/underscore.'; return;
-  }
-  try {
-    const snap = await getDoc(doc(db, 'users', username));
-    if (snap.exists()) { errEl.textContent = 'Username sudah dipakai.'; return; }
-    const allSnap = await getDocs(collection(db, 'users'));
-    const isFirst = allSnap.empty;
-    const newUser = {
-      username, password,
-      role:           isFirst ? 'maou' : 'rakyat',
-      rankPoints:     0,
-      eris:           0,
-      avatarUrl:      DEFAULT_AVATAR,
-      animeList:      [],
-      marathon:       [],
-      gachaCollection:[],
-      lastLogin:      0,
-      createdAt:      Date.now(),
-    };
-    await setDoc(doc(db, 'users', username), newUser);
-    currentUser = { id: username, ...newUser };
-    toast('Selamat bergabung ke Guild, ' + username + '! 🎉', 'success');
-    onLoginSuccess();
-  } catch(e) {
-    errEl.textContent = 'Registrasi gagal. Cek Firebase config.';
-    console.error(e);
-  }
-}
-window.doRegister = doRegister;
-function onLoginSuccess() {
-  document.getElementById('auth-screen').classList.add('hidden');
-  document.getElementById('app').classList.add('visible');
-  renderSidebar();
-  navigate('home');
-  loadAllUsers();
-  loadGachaPool();
-  updateGachaErisDisplay();
-}
-function logout() {
-  closeModal();
-  currentUser = null;
-  document.getElementById('auth-screen').classList.remove('hidden');
-  document.getElementById('app').classList.remove('visible');
-  document.getElementById('login-username').value = '';
-  document.getElementById('login-password').value = '';
-}
-function renderSidebar() {
-  if (!currentUser) return;
-  const avatarEl  = document.getElementById('sidebar-avatar');
-  const nameEl    = document.getElementById('sidebar-username');
-  const badgeEl   = document.getElementById('sidebar-role-badge');
-  const adminNav  = document.getElementById('nav-admin');
-  avatarEl.src    = safeImg(currentUser.avatarUrl, DEFAULT_AVATAR);
-  nameEl.textContent = currentUser.username;
-  badgeEl.textContent = roleLabel(currentUser.role);
-  badgeEl.className  = `sidebar-role-badge ${roleClass(currentUser.role)}`;
-  adminNav.style.display = currentUser.role === 'maou' ? '' : 'none';
-}
-function navigate(page) {
-  currentPage = page;
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.querySelectorAll('.bottom-nav-item').forEach(n => n.classList.remove('active'));
-  const pageEl = document.getElementById('page-' + page);
-  if (pageEl) pageEl.classList.add('active');
-  const navEl  = document.getElementById('nav-' + page);
-  if (navEl)  navEl.classList.add('active');
-  const bnEl   = document.getElementById('bn-' + page);
-  if (bnEl)   bnEl.classList.add('active');
-  switch(page) {
-    case 'home':       renderAnimeGrid(); break;
-    case 'browse':      renderBrowseGrid(); break;
-    case 'marathon':   renderMarathon();  break;
-    case 'gacha':      renderGachaBanners(); break;
-    case 'collection': renderCollection(); break;
-    case 'users':      renderUsers();     break;
-    case 'profile':    renderProfile(currentUser); break;
-    case 'admin':      renderAdminHome(); break;
-  }
-}
-window.navigate = navigate;
-async function loadJikanSearch(query) {
-  try {
-    const res  = await fetch(`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(query)}&limit=24&sfw`);
-    const json = await res.json();
-    return json.data || [];
-  } catch { return []; }
-}
-async function loadJikanTop() {
-  try {
-    const res  = await fetch(`https://api.jikan.moe/v4/top/anime?limit=24`);
-    const json = await res.json();
-    return json.data || [];
-  } catch { return []; }
-}
-function renderAnimeGrid() {
-  if (!currentUser) return;
-  const grid = document.getElementById('anime-grid');
-  const list = (currentUser.animeList || []).filter(a => {
-    const q = (document.getElementById('anime-search')?.value || '').toLowerCase();
-    const matchQuery  = !q || a.title.toLowerCase().includes(q);
-    const matchStatus = animeStatusFilter === 'all' || a.status === animeStatusFilter;
-    return matchQuery && matchStatus;
-  });
-  if (!list.length) {
-    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
-      <div class="empty-state-icon" data-lucide="inbox"></div>
-      <h3>Tidak ada anime</h3>
-      <p>Coba ubah kata kunci pencarian, atau klik "Tambah Anime" untuk menjelajah katalog.</p>
-    </div>`;
-    refreshIcons();
-    return;
-  }
-  grid.innerHTML = list.map(a => `
-    <div class="anime-card" onclick="openAnimeDetail('${a.id}')">
-      <span class="anime-status-badge status-${a.status}">${a.status === 'watching' ? 'Watching' : a.status === 'watched' ? 'Watched' : a.status}</span>
-      ${safeImg(a.imageUrl, '') !== ''
-        ? `<img class="anime-card-poster" src="${safeImg(a.imageUrl, '')}" loading="lazy" onerror="this.style.display='none'"/>`
-        : `<div class="anime-card-poster-placeholder" data-lucide="clapperboard"></div>`
-      }
-      <div class="anime-card-body">
-        <div class="anime-card-title">${a.title}</div>
-        <div class="anime-card-meta">${a.episodes || '?'} eps</div>
-      </div>
-    </div>
-  `).join('');
-  refreshIcons();
-}
-window.filterAnimeList   = renderAnimeGrid;
-function filterByStatus(status, btn) {
-  animeStatusFilter = status;
-  document.querySelectorAll('#page-home .tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderAnimeGrid();
-}
-window.filterByStatus = filterByStatus;
-function openAnimeDetail(id) {
-  const anime = currentUser.animeList.find(a => a.id === id);
-  if (!anime) return;
-  showModal(
-    anime.title,
-    `<img src="${safeImg(anime.imageUrl,'')}" style="width:100%;border-radius:10px;margin-bottom:12px;max-height:220px;object-fit:cover" onerror="this.style.display='none'"/>
-     ${anime.synopsis ? `<p style="font-size:12px;color:var(--muted);margin-bottom:10px;max-height:120px;overflow-y:auto">${anime.synopsis}</p>` : ''}
-     <p>Status: <b>${anime.status}</b></p>
-     <p>Episode: <b>${anime.episodes || '?'}</b></p>`,
-    [
-      { label: 'Tandai Watched', cls: 'btn-primary', fn: () => setAnimeStatus(id, 'watched') },
-      { label: 'Hapus', cls: 'btn-danger', fn: () => removeAnime(id) },
-      { label: 'Tutup', cls: 'btn-ghost', fn: closeModal }
-    ]
-  );
-}
-window.openAnimeDetail = openAnimeDetail;
-async function setAnimeStatus(id, status) {
-  currentUser.animeList = currentUser.animeList.map(a => a.id === id ? { ...a, status } : a);
-  await saveUserData();
-  closeModal();
-  renderAnimeGrid();
-  toast('Status diperbarui!', 'success');
-}
-async function removeAnime(id) {
-  currentUser.animeList = currentUser.animeList.filter(a => a.id !== id);
-  await saveUserData();
-  closeModal();
-  renderAnimeGrid();
-  toast('Anime dihapus.', 'info');
-}
-let browseLastResults = [];
-async function renderBrowseGrid() {
-  const grid = document.getElementById('browse-grid');
-  grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon" data-lucide="loader"></div><p>Memuat katalog anime...</p></div>`;
-  refreshIcons();
-  const data = await loadJikanTop();
-  browseLastResults = data;
-  paintBrowseGrid(data);
-}
-function paintBrowseGrid(data) {
-  const grid = document.getElementById('browse-grid');
-  if (!data.length) {
-    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon" data-lucide="search-x"></div><h3>Tidak ditemukan</h3></div>`;
-    refreshIcons();
-    return;
-  }
-  grid.innerHTML = data.map((a, i) => {
-    const already = currentUser.animeList?.some(x => String(x.jikanId) === String(a.mal_id));
-    return `
-    <div class="anime-card" onclick="addAnimeFromBrowse(${i})" title="${already ? 'Sudah ada di daftarmu' : 'Klik untuk tambah'}">
-      ${already ? '<span class="anime-status-badge status-watched">Di Daftarmu</span>' : ''}
-      <img class="anime-card-poster" src="${a.images?.jpg?.large_image_url || a.images?.jpg?.image_url || ''}" loading="lazy" onerror="this.style.display='none'"/>
-      <div class="anime-card-body">
-        <div class="anime-card-title">${a.title}</div>
-        <div class="anime-card-meta">${a.episodes || '?'} eps · ${a.score || '-'} ★</div>
-      </div>
-    </div>`;
-  }).join('');
-  refreshIcons();
-}
-async function doBrowseSearch() {
-  const q = document.getElementById('browse-search')?.value?.trim();
-  const grid = document.getElementById('browse-grid');
-  grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon" data-lucide="loader"></div><p>Mencari...</p></div>`;
-  refreshIcons();
-  const data = q ? await loadJikanSearch(q) : await loadJikanTop();
-  browseLastResults = data;
-  paintBrowseGrid(data);
-}
-window.doBrowseSearch = doBrowseSearch;
-async function addAnimeFromBrowse(idx) {
-  const a = browseLastResults[idx];
-  if (!a) return;
-  const existing = currentUser.animeList.find(x => String(x.jikanId) === String(a.mal_id));
-  if (existing) { toast('Anime sudah ada di daftar.', 'error'); return; }
-  const entry = {
-    id:       'anime_' + Date.now(),
-    jikanId:  a.mal_id,
-    source:   'jikan',
-    title:    a.title,
-    imageUrl: a.images?.jpg?.large_image_url || a.images?.jpg?.image_url || '',
-    episodes: a.episodes,
-    synopsis: a.synopsis || '',
-    status:   'watching',
-    addedAt:  Date.now()
-  };
-  currentUser.animeList = [...(currentUser.animeList || []), entry];
-  await saveUserData();
-  toast(a.title + ' ditambahkan ke daftarmu!', 'success');
-  paintBrowseGrid(browseLastResults);
-}
-window.addAnimeFromBrowse = addAnimeFromBrowse;
-function renderMarathon() {
-  const list = document.getElementById('marathon-list');
-  const items = currentUser.marathon || [];
-  if (!items.length) {
-    list.innerHTML = `<div class="empty-state">
-      <div class="empty-state-icon" data-lucide="calendar"></div>
-      <h3>Belum ada rencana marathon</h3>
-      <p>Cari anime dan tambahkan dengan tenggat waktu!</p>
-    </div>`;
-    refreshIcons();
-    return;
-  }
-  list.innerHTML = `<div class="anime-grid">` + items.map(m => {
-    const overdue = m.deadline && !m.completed && Date.now() > new Date(m.deadline).getTime();
-    const deadlineStr = m.deadline ? new Date(m.deadline).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }) : 'Tanpa batas waktu';
-    return `
-    <div class="anime-card ${m.completed ? 'done' : ''}" style="${m.completed?'opacity:0.55':''}">
-      <span class="anime-status-badge ${overdue?'status-watching':'status-planned'}">${overdue ? 'Overdue' : (m.completed ? 'Selesai' : 'Direncanakan')}</span>
-      ${safeImg(m.imageUrl,'') !== '' ? `<img class="anime-card-poster" src="${safeImg(m.imageUrl,'')}" onerror="this.style.display='none'"/>` : `<div class="anime-card-poster-placeholder" data-lucide="clapperboard"></div>`}
-      <div class="anime-card-body">
-        <div class="anime-card-title">${m.title}</div>
-        <div class="anime-card-meta">${deadlineStr}</div>
-        <div style="display:flex;gap:6px;margin-top:8px">
-          <button class="icon-btn" onclick="toggleMarathon('${m.id}')" title="Tandai selesai"><span data-lucide="check"></span></button>
-          <button class="icon-btn" onclick="removeMarathon('${m.id}')" title="Hapus"><span data-lucide="trash-2"></span></button>
-        </div>
-      </div>
-    </div>`;
-  }).join('') + `</div>`;
-  refreshIcons();
-}
-let marathonPicked = null;
-function openAddMarathonModal() {
-  marathonPicked = null;
-  showModal(
-    'Tambah Marathon',
-    `<div class="input-group"><label>Cari Anime</label>
-     <input type="text" id="mm-search" placeholder="Cth: Attack on Titan" onkeydown="if(event.key==='Enter'){event.preventDefault();doMarathonSearch();}"/></div>
-     <button class="btn btn-ghost" style="margin-bottom:10px" onclick="doMarathonSearch()"><span data-lucide="search"></span> Cari</button>
-     <div id="mm-results" style="max-height:220px;overflow-y:auto;margin-bottom:10px"></div>
-     <div id="mm-picked" style="font-size:12px;color:var(--muted);margin-bottom:8px">Belum ada anime dipilih.</div>
-     <div class="input-group"><label>Tenggat Waktu (opsional)</label><input type="date" id="m-deadline"/></div>`,
-    [
-      { label: 'Tambahkan', cls: 'btn-primary', fn: saveMarathon },
-      { label: 'Tutup', cls: 'btn-ghost', fn: closeModal }
-    ]
-  );
-}
-window.openAddMarathonModal = openAddMarathonModal;
-async function doMarathonSearch() {
-  const q = document.getElementById('mm-search')?.value?.trim();
-  if (!q) return;
-  const resultsEl = document.getElementById('mm-results');
-  resultsEl.innerHTML = '<p style="color:var(--muted);font-size:13px">Mencari...</p>';
-  const results = await loadJikanSearch(q);
-  window._marathonResults = results;
-  if (!results.length) { resultsEl.innerHTML = '<p style="color:var(--muted);font-size:13px">Tidak ditemukan.</p>'; return; }
-  resultsEl.innerHTML = results.slice(0,10).map((a, i) => `
-    <div onclick="pickMarathonAnime(${i})" style="display:flex;gap:10px;align-items:center;padding:8px;border-radius:8px;cursor:pointer;border:1px solid var(--border);margin-bottom:6px;background:var(--panel2)">
-      <img src="${a.images?.jpg?.image_url || ''}" style="width:36px;height:50px;border-radius:6px;object-fit:cover;background:var(--panel)" onerror="this.style.display='none'"/>
-      <div style="font-size:13px;font-weight:600">${a.title}</div>
-    </div>
-  `).join('');
-}
-window.doMarathonSearch = doMarathonSearch;
-function pickMarathonAnime(idx) {
-  marathonPicked = window._marathonResults?.[idx];
-  if (!marathonPicked) return;
-  document.getElementById('mm-picked').innerHTML = `Dipilih: <b>${marathonPicked.title}</b>`;
-}
-window.pickMarathonAnime = pickMarathonAnime;
-async function saveMarathon() {
-  if (!marathonPicked) { toast('Pilih anime dari hasil pencarian dulu.', 'error'); return; }
-  const deadline = document.getElementById('m-deadline')?.value || '';
-  currentUser.marathon = [...(currentUser.marathon || []), {
-    id: 'mrt_' + Date.now(),
-    title: marathonPicked.title,
-    imageUrl: marathonPicked.images?.jpg?.large_image_url || marathonPicked.images?.jpg?.image_url || '',
-    deadline, completed: false, addedAt: Date.now()
-  }];
-  await saveUserData();
-  closeModal();
-  renderMarathon();
-  toast('Marathon ditambahkan!', 'success');
-}
-async function toggleMarathon(id) {
-  currentUser.marathon = currentUser.marathon.map(m => m.id === id ? { ...m, completed: !m.completed } : m);
-  await saveUserData();
-  renderMarathon();
-}
-window.toggleMarathon = toggleMarathon;
-async function removeMarathon(id) {
-  currentUser.marathon = currentUser.marathon.filter(m => m.id !== id);
-  await saveUserData();
-  renderMarathon();
-  toast('Dihapus.', 'info');
-}
-window.removeMarathon = removeMarathon;
-async function loadGachaPool() {
-  const snap = await getDocs(collection(db, 'gacha_pool'));
-  gachaPool  = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-}
-function renderGachaBanners() {
-  updateGachaErisDisplay();
-  const area = document.getElementById('gacha-banners');
-  const price = currentUser.role === 'bangsawan' ? GACHA_PRICE.bangsawan : GACHA_PRICE.rakyat;
-  const banners = [
-    { type: 'waifu_card', icon: 'heart', name: 'Waifu Card', desc: 'Koleksi kartu waifu favoritmu.' },
-    { type: 'husbu_card', icon: 'sword', name: 'Husbu Card', desc: 'Koleksi kartu husbu terkuat.' },
-    { type: 'waifu_pfp',  icon: 'image', name: 'Waifu PFP',  desc: 'Dapatkan foto profil waifu.' },
-    { type: 'husbu_pfp',  icon: 'image', name: 'Husbu PFP',  desc: 'Dapatkan foto profil husbu.' },
-  ];
-  area.innerHTML = banners.map(b => `
-    <div class="gacha-banner" onclick="doGacha('${b.type}')">
-      <div class="gacha-banner-icon"><span data-lucide="${b.icon}" class="icon-xl"></span></div>
-      <div class="gacha-banner-name">${b.name}</div>
-      <div class="gacha-banner-desc">${b.desc}</div>
-      <div class="gacha-price-tag"><span data-lucide="coins"></span> ${price} Eris / pull</div>
-    </div>
-  `).join('');
-}
-function updateGachaErisDisplay() {
-  const el = document.getElementById('gacha-eris-display');
-  if (el) el.textContent = currentUser?.eris || 0;
-}
-async function doGacha(type) {
-  const price = currentUser.role === 'bangsawan' ? GACHA_PRICE.bangsawan : GACHA_PRICE.rakyat;
-  if (currentUser.eris < price) {
-    toast(`Eris tidak cukup! Butuh ${price} Eris.`, 'error');
-    return;
-  }
-  const pool = gachaPool.filter(g => g.type === type);
-  if (!pool.length) {
-    toast('Pool gacha untuk banner ini masih kosong. Hubungi Maou!', 'error');
-    return;
-  }
-  const weights = { C:50, R:30, SR:15, SSR:4, UR:1 };
-  const weighted = [];
-  pool.forEach(item => {
-    const w = weights[item.rarity] || 10;
-    for (let i=0; i<w; i++) weighted.push(item);
-  });
-  const result = weighted[Math.floor(Math.random() * weighted.length)];
-  currentUser.eris -= price;
-  const pts = RARITY_PTS[result.rarity] || 1;
-  currentUser.rankPoints = (currentUser.rankPoints || 0) + pts;
-  currentUser.gachaCollection = [...(currentUser.gachaCollection || []), {
-    id: 'col_' + Date.now(), name: result.name, imageUrl: result.imageUrl, type, rarity: result.rarity
-  }];
-  await saveUserData();
-  updateGachaErisDisplay();
-  showGachaResult([result]);
-}
-window.doGacha = doGacha;
-function showGachaResult(items) {
-  document.getElementById('gacha-banners-area').style.display = 'none';
-  document.getElementById('gacha-result-area').style.display  = '';
-  const grid = document.getElementById('gacha-result-grid');
-  grid.innerHTML = items.map(item => `
-    <div class="gacha-result-card ${item.rarity}" style="animation-delay:0.1s">
-      <img class="gacha-result-img" src="${safeImg(item.imageUrl,'')}" onerror="this.style.background='var(--panel2)'"/>
-      <div class="gacha-result-footer">
-        <span class="rarity-${item.rarity}">[${item.rarity}]</span> ${item.name}
-      </div>
-    </div>
-  `).join('');
-}
-function closeGachaResult() {
-  document.getElementById('gacha-banners-area').style.display = '';
-  document.getElementById('gacha-result-area').style.display  = 'none';
-  renderGachaBanners();
-}
-window.closeGachaResult = closeGachaResult;
-function renderCollection() {
-  const grid  = document.getElementById('collection-grid');
-  const items = (currentUser.gachaCollection || []).filter(c => collectionFilter === 'all' || c.type === collectionFilter);
-  if (!items.length) {
-    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
-      <div class="empty-state-icon">🃏</div><h3>Koleksi Kosong</h3><p>Lakukan gacha untuk mengisi koleksimu!</p>
-    </div>`;
-    return;
-  }
-  grid.innerHTML = items.map(c => `
-    <div class="collection-card" style="border-color:var(--rarity-${c.rarity})">
-      <img src="${safeImg(c.imageUrl,'')}" alt="${c.name}" onerror="this.style.background='var(--panel2)'"/>
-      <div class="collection-card-footer">
-        <div class="rarity-label rarity-${c.rarity}">[${c.rarity}]</div>
-        <div style="font-size:11px;color:var(--text);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.name}</div>
-        ${(c.type === 'waifu_pfp' || c.type === 'husbu_pfp')
-          ? `<button class="btn btn-ghost" style="font-size:10px;padding:3px 8px;margin-top:5px" onclick="usePfp('${c.imageUrl}')">Pakai sebagai PFP</button>`
-          : ''}
-      </div>
-    </div>
-  `).join('');
-}
-async function usePfp(url) {
-  currentUser.avatarUrl = url;
-  await saveUserData();
-  renderSidebar();
-  renderCollection();
-  toast('Foto profil berhasil diubah! ✨', 'success');
-}
-window.usePfp = usePfp;
-function filterCollection(type, btn) {
-  collectionFilter = type;
-  document.querySelectorAll('#collection-tabs .tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderCollection();
-}
-window.filterCollection = filterCollection;
-function renderProfile(userData, isOwnProfile = true) {
-  if (!userData) return;
-  const rank    = getRank(userData.rankPoints || 0);
-  const nextRk  = getNextRank(userData.rankPoints || 0);
-  const prog    = getRankProgress(userData.rankPoints || 0);
-  const themeClass  = userData.role === 'maou' ? 'maou-theme' : userData.role === 'bangsawan' ? 'bangsawan-theme' : '';
-  const avatarBorder = userData.role === 'maou' ? 'maou-border' : userData.role === 'bangsawan' ? 'bangsawan-border' : '';
-  const usernameClass = userData.role === 'maou' ? 'maou-text' : userData.role === 'bangsawan' ? 'bangsawan-text' : '';
-  const content = document.getElementById('profile-content');
-  content.innerHTML = `
-    ${!isOwnProfile ? `<button class="btn btn-ghost" style="margin-bottom:4px" onclick="navigate('users')"><span data-lucide="arrow-left"></span> Kembali ke Guild Members</button>` : ''}
-    <div class="profile-hero ${themeClass}">
-      <div class="profile-hero-bg"></div>
-      <div class="profile-top">
-        <div class="profile-avatar-wrap">
-          <img class="profile-avatar ${avatarBorder}" src="${safeImg(userData.avatarUrl, DEFAULT_AVATAR)}" onerror="this.src='${DEFAULT_AVATAR}'" alt="avatar"/>
-        </div>
-        <div class="profile-info">
-          <div class="profile-username ${usernameClass}">${userData.username}</div>
-          <div class="profile-badges">
-            ${roleBadgeHtml(userData.role)}
-            <span class="badge badge-rank"><span data-lucide="medal"></span> ${rank.name}</span>
-          </div>
-          <div class="rank-bar-wrap">
-            <div class="rank-bar-meta">
-              <span>Rank Points: ${userData.rankPoints || 0}</span>
-              <span>${nextRk ? 'Menuju ' + nextRk.name + ' ('+nextRk.minPts+' pts)' : 'Rank Tertinggi!'}</span>
+    <div id="toast"></div>
+
+    <!-- SPLASH -->
+    <div id="splash-overlay" class="fixed inset-0 z-[99999] flex flex-col justify-center items-center px-10" style="background:linear-gradient(160deg,#1e40af 0%,#0891b2 100%); transition: opacity 0.5s;">
+        <!-- Decorative circles -->
+        <div style="position:absolute; top:-60px; right:-60px; width:220px; height:220px; border-radius:50%; background:rgba(255,255,255,0.07);"></div>
+        <div style="position:absolute; bottom:-40px; left:-40px; width:160px; height:160px; border-radius:50%; background:rgba(255,255,255,0.05);"></div>
+
+        <!-- White card -->
+        <div style="background:white; border-radius:32px; padding:36px 40px; display:flex; flex-direction:column; align-items:center; box-shadow:0 24px 60px rgba(0,0,0,0.18); animation: splashPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both 0.15s; opacity:0; width:100%; max-width:260px;">
+            <div style="width:72px; height:72px; border-radius:20px; background:linear-gradient(135deg,#3b82f6,#06b6d4); display:flex; align-items:center; justify-content:center; box-shadow:0 10px 28px rgba(59,130,246,0.4); margin-bottom:18px;">
+                <img src="https://i.ibb.co.com/pvbNDz7v/taskify.png" style="width:44px; height:44px; object-fit:contain;" alt="Logo">
             </div>
-            <div class="rank-bar"><div class="rank-bar-fill" style="width:${prog}%"></div></div>
-          </div>
+            <h1 style="color:#1e293b; font-size:22px; font-weight:900; letter-spacing:0.08em; margin:0 0 6px 0; font-family:'Poppins',sans-serif;">TASKIFY</h1>
+            <p style="color:#94a3b8; font-size:11px; margin:0; font-family:'Poppins',sans-serif; font-weight:500;">Atur harimu. Capai targetmu.</p>
         </div>
-        ${isOwnProfile ? `<button class="btn btn-ghost" onclick="openEditProfileModal()"><span data-lucide="pencil"></span> Edit Profil</button>` : ''}
-      </div>
+
+        <p style="color:rgba(255,255,255,0.45); font-size:10px; margin-top:28px; font-family:'Poppins',sans-serif; letter-spacing:0.05em; animation: splashPop 0.4s ease both 0.5s; opacity:0;">Memuat aplikasi...</p>
     </div>
-    ${isOwnProfile ? `
-    <div style="display:flex;gap:12px;flex-wrap:wrap">
-      <div class="eris-widget" style="flex:1;min-width:150px">
-        <span class="eris-icon" data-lucide="coins"></span>
-        <div class="eris-info">
-          <div class="eris-amount">${userData.eris || 0}</div>
-          <div class="eris-label">Eris</div>
+
+    <!-- CONFIRM MODAL -->
+    <div id="modal-konfirmasi" class="fixed inset-0 z-[9999] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="absolute inset-0 bg-black/40" onclick="tutupModal()"></div>
+        <div id="modal-box" class="relative bg-white rounded-[28px] p-7 w-[82%] max-w-[320px] transform scale-95 transition-all duration-300 shadow-2xl">
+            <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-question text-blue-500 text-lg"></i>
+            </div>
+            <h3 class="text-[16px] font-extrabold text-gray-900 text-center mb-2">Konfirmasi</h3>
+            <p class="text-[12px] text-gray-500 text-center mb-6 leading-relaxed" id="modal-pesan"></p>
+            <div class="flex gap-3">
+                <button id="btn-modal-batal" class="flex-1 bg-gray-100 text-gray-600 py-3 rounded-[14px] font-bold text-[12px] transition active:scale-95">Batal</button>
+                <button id="btn-modal-ya" class="flex-1 btn-gradient py-3 rounded-[14px] font-bold text-[12px] !rounded-[14px]" style="border-radius:14px !important;">Ya, Lanjut!</button>
+            </div>
         </div>
-        <button class="btn btn-ghost" style="font-size:11px" onclick="openTopUpModal()">Top Up</button>
-      </div>
-      <div class="daily-btn ${isDailyClaimed() ? 'claimed' : ''}" onclick="claimDaily()" style="flex:1;min-width:200px">
-        <span data-lucide="${isDailyClaimed() ? 'check-circle' : 'gift'}" class="icon-lg"></span>
-        <div class="daily-info">
-          <h4>${isDailyClaimed() ? 'Sudah diklaim hari ini' : 'Daily Login Reward'}</h4>
-          <p>${isDailyClaimed() ? 'Kembali besok!' : 'Klik untuk klaim +' + DAILY_REWARD + ' Eris'}</p>
+    </div>
+
+    <!-- REMASTER INFO POPUP -->
+    <div id="popup-remaster" class="fixed inset-0 z-[9998] flex items-end justify-center hidden" style="padding-bottom:0;">
+        <div class="absolute inset-0 bg-black/30" style="backdrop-filter:blur(3px);"></div>
+        <div id="popup-remaster-box" class="relative bg-white w-full max-w-[430px] rounded-t-[28px] p-6 pb-8 shadow-2xl transform translate-y-full transition-transform duration-500 ease-out">
+            <div class="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5"></div>
+            <div class="flex items-start gap-3.5 mb-5">
+                <div class="w-11 h-11 rounded-[14px] flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,#eff6ff,#dbeafe);">
+                    <i class="fas fa-paint-brush text-blue-500 text-[14px]"></i>
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold text-blue-400 uppercase tracking-widest mb-0.5">Pemberitahuan</p>
+                    <h3 class="text-[15px] font-extrabold text-gray-900 leading-tight">Tampilan Baru!</h3>
+                </div>
+            </div>
+            <p class="text-[12.5px] text-gray-600 leading-relaxed mb-5">
+                Tema ini adalah <span class="font-bold text-blue-500">versi remaster</span> dari versi sebelumnya. Ini hanya ujicoba — tema yang lama akan digunakan kembali secepatnya.
+            </p>
+            <button id="btn-popup-ok" class="btn-gradient mb-3">Oke, Mengerti!</button>
+            <button id="btn-popup-jangan" class="w-full py-3 rounded-[14px] text-[12px] font-bold text-gray-400 transition active:scale-95" style="background:#f8faff;">
+                Jangan tampilkan lagi
+            </button>
         </div>
-      </div>
     </div>
-    ` : ''}
-    <div class="profile-stats">
-      <div class="stat-card">
-        <div class="stat-value">${(userData.animeList || []).filter(a=>a.status==='watched').length}</div>
-        <div class="stat-label">Anime Ditonton</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">${(userData.marathon || []).length}</div>
-        <div class="stat-label">Marathon Plan</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">${(userData.gachaCollection || []).length}</div>
-        <div class="stat-label">Total Koleksi</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">${(userData.gachaCollection || []).filter(c=>c.rarity==='SSR'||c.rarity==='UR').length}</div>
-        <div class="stat-label">SSR / UR Cards</div>
-      </div>
-    </div>
-    <div class="section-label">Daftar Anime yang Dicatat</div>
-    <div class="anime-grid">
-      ${(userData.animeList || []).slice(0,12).map(a => `
-        <div class="anime-card" style="cursor:default">
-          <span class="anime-status-badge status-${a.status}">${a.status === 'watching' ? 'Watching' : a.status === 'watched' ? 'Watched' : a.status}</span>
-          ${safeImg(a.imageUrl,'') !== '' ? `<img class="anime-card-poster" src="${safeImg(a.imageUrl,'')}" loading="lazy" onerror="this.style.display='none'"/>` : `<div class="anime-card-poster-placeholder" data-lucide="clapperboard"></div>`}
-          <div class="anime-card-body">
-            <div class="anime-card-title">${a.title}</div>
-            <div class="anime-card-meta">${a.episodes || '?'} eps</div>
-          </div>
+
+    <div id="app-container">
+
+        <!-- LOADING PAGE -->
+        <div id="page-loading" class="page active justify-center items-center" style="background:linear-gradient(160deg,#1e40af 0%,#0891b2 100%);">
+            <div class="spinner mb-5"></div>
+            <h1 style="color:white; font-size:18px; font-weight:800; letter-spacing:0.1em;">TASKIFY</h1>
         </div>
-      `).join('') || '<div class="empty-state" style="grid-column:1/-1"><p>Belum ada anime yang dicatat.</p></div>'}
-    </div>
-    <div class="section-label">Koleksi Gacha</div>
-    <div class="collection-grid">
-      ${(userData.gachaCollection || []).slice(0,12).map(c=>`
-        <div class="collection-card" style="border-color:var(--rarity-${c.rarity})">
-          <img src="${safeImg(c.imageUrl,'')}" alt="${c.name}" onerror="this.style.background='var(--panel2)'"/>
-          <div class="collection-card-footer">
-            <div class="rarity-label rarity-${c.rarity}">[${c.rarity}]</div>
-            <div style="font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.name}</div>
-          </div>
+
+        <!-- LOGIN PAGE -->
+        <div id="page-login" class="page justify-center items-center px-6" style="background:linear-gradient(160deg,#f0f4ff 0%,#e0f2fe 100%);">
+            <div class="auth-card">
+                <div class="text-center mb-7">
+                    <div class="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center" style="background:linear-gradient(135deg,#3b82f6,#06b6d4); box-shadow: 0 8px 24px rgba(59,130,246,0.35);">
+                        <img src="https://i.ibb.co.com/pvbNDz7v/taskify.png" class="w-10 h-10 object-contain" alt="Logo">
+                    </div>
+                    <p class="text-[10px] font-bold text-blue-400 tracking-[0.25em] uppercase mb-1">Taskify</p>
+                    <h1 class="text-[28px] font-extrabold text-gray-900 tracking-tight">Selamat Datang</h1>
+                    <p class="text-gray-400 text-[12px] mt-1">Masuk ke akunmu</p>
+                </div>
+                <form id="form-login" class="flex flex-col gap-4">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-1">Email</label>
+                        <input type="email" id="login-email" class="input-pill" placeholder="nama@email.com" required>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-1">Password</label>
+                        <input type="password" id="login-password" class="input-pill" placeholder="••••••••" required>
+                    </div>
+                    <div class="mt-2">
+                        <button type="submit" class="btn-gradient">Masuk</button>
+                    </div>
+                </form>
+                <p class="text-center text-[11px] text-gray-400 mt-6">
+                    Belum punya akun? <span onclick="pindahHalaman('page-register')" class="text-blue-500 font-bold cursor-pointer">Daftar Sekarang</span>
+                </p>
+            </div>
         </div>
-      `).join('') || '<div class="empty-state" style="grid-column:1/-1"><p>Belum ada koleksi.</p></div>'}
+
+        <!-- REGISTER PAGE -->
+        <div id="page-register" class="page justify-center items-center px-6" style="background:linear-gradient(160deg,#f0f4ff 0%,#e0f2fe 100%);">
+            <div class="auth-card">
+                <div class="text-center mb-6">
+                    <div class="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center" style="background:linear-gradient(135deg,#3b82f6,#06b6d4); box-shadow: 0 8px 24px rgba(59,130,246,0.35);">
+                        <img src="https://i.ibb.co.com/pvbNDz7v/taskify.png" class="w-9 h-9 object-contain" alt="Logo">
+                    </div>
+                    <p class="text-[10px] font-bold text-blue-400 tracking-[0.25em] uppercase mb-1">Taskify</p>
+                    <h1 class="text-[24px] font-extrabold text-gray-900 tracking-tight">Buat Akun</h1>
+                    <p class="text-gray-400 text-[12px] mt-1">Mulai perjalananmu</p>
+                </div>
+                <form id="form-register" class="flex flex-col gap-3.5">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-1">Username</label>
+                        <input type="text" id="reg-username" class="input-pill" placeholder="nama kamu" required>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-1">Email</label>
+                        <input type="email" id="reg-email" class="input-pill" placeholder="nama@email.com" required>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-1">Password</label>
+                        <input type="password" id="reg-password" class="input-pill" placeholder="Min. 6 karakter" required>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-1">Konfirmasi Password</label>
+                        <input type="password" id="reg-confirm" class="input-pill" placeholder="Ulangi password" required>
+                    </div>
+                    <div class="mt-2">
+                        <button type="submit" class="btn-gradient">Buat Akun</button>
+                    </div>
+                </form>
+                <p class="text-center text-[11px] text-gray-400 mt-5">
+                    Sudah punya akun? <span onclick="pindahHalaman('page-login')" class="text-blue-500 font-bold cursor-pointer">Masuk Sekarang</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- BERANDA PAGE -->
+        <div id="page-beranda" class="page">
+            <!-- Header -->
+            <div class="header-card">
+                <div class="flex justify-between items-center relative z-10">
+                    <div>
+                        <p class="text-[11px] font-semibold" style="color:rgba(255,255,255,0.65);">Dashboard</p>
+                        <h1 class="text-[22px] font-extrabold text-white leading-tight mt-0.5" id="greet-name"></h1>
+                        <p class="text-[11px] mt-1" style="color:rgba(255,255,255,0.65);">Sudah siap produktif hari ini?</p>
+                    </div>
+                    <img id="nav-pp" onclick="pindahHalaman('page-profil')" src="" 
+                        class="w-12 h-12 rounded-2xl cursor-pointer object-cover border-2 border-white/30"
+                        style="box-shadow:0 4px 16px rgba(0,0,0,0.25);"
+                        alt="Profil">
+                </div>
+
+                <!-- Stats bar -->
+                <div id="stats-bar" class="flex gap-2.5 mt-5 relative z-10">
+                    <div class="stat-pill flex-1">
+                        <i class="fas fa-clipboard-list text-white text-[12px]"></i>
+                        <div>
+                            <div class="text-white font-extrabold text-[16px] leading-none" id="stat-aktif">0</div>
+                            <div style="color:rgba(255,255,255,0.65); font-size:9px; font-weight:600;">Aktif</div>
+                        </div>
+                    </div>
+                    <div class="stat-pill flex-1">
+                        <i class="fas fa-fire text-orange-300 text-[12px]"></i>
+                        <div>
+                            <div class="text-white font-extrabold text-[16px] leading-none" id="stat-dekat">0</div>
+                            <div style="color:rgba(255,255,255,0.65); font-size:9px; font-weight:600;">Segera</div>
+                        </div>
+                    </div>
+                    <div class="stat-pill flex-1">
+                        <i class="fas fa-check-circle text-green-300 text-[12px]"></i>
+                        <div>
+                            <div class="text-white font-extrabold text-[16px] leading-none" id="stat-selesai">0</div>
+                            <div style="color:rgba(255,255,255,0.65); font-size:9px; font-weight:600;">Selesai</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="scrollable-area px-5 pt-5">
+                <!-- Tabs -->
+                <div class="flex gap-2 mb-5 p-1.5 bg-white rounded-2xl shadow-sm border border-gray-100">
+                    <button id="tab-tugas" onclick="ubahFilter('tugas')" class="tab-btn active">
+                        <i class="fas fa-book-open mr-1.5 text-[11px]"></i>Tugas
+                    </button>
+                    <button id="tab-kegiatan" onclick="ubahFilter('kegiatan')" class="tab-btn inactive">
+                        <i class="fas fa-calendar-alt mr-1.5 text-[11px]"></i>Kegiatan
+                    </button>
+                    <button onclick="bukaRiwayat()" 
+                        class="w-11 h-10 flex-shrink-0 bg-gray-50 text-gray-400 rounded-xl flex justify-center items-center transition active:scale-95 border border-gray-100 hover:bg-gray-100"
+                        title="Riwayat">
+                        <i class="fas fa-history text-[13px]"></i>
+                    </button>
+                </div>
+
+                <div id="list-container" class="flex flex-col gap-3"></div>
+            </div>
+
+            <!-- FAB -->
+            <button onclick="bukaFormTambah()" class="fab-add ripple-host">
+                <div class="fab-icon" style="position:absolute; left:16px; top:50%; transform:translateY(-50%);">+</div>
+                <span>Tambah <span id="btn-tambah-label">Tugas</span></span>
+                <i class="fas fa-chevron-right text-[11px] text-gray-300" style="position:absolute; right:20px; top:50%; transform:translateY(-50%);"></i>
+            </button>
+        </div>
+
+        <!-- RIWAYAT PAGE -->
+        <div id="page-riwayat" class="page">
+            <div class="header-card !pb-6">
+                <div class="flex items-center gap-3 relative z-10">
+                    <button onclick="pindahHalaman('page-beranda')" class="w-10 h-10 rounded-2xl flex justify-center items-center transition active:scale-95" style="background:rgba(255,255,255,0.2);">
+                        <i class="fas fa-chevron-left text-white text-[12px]"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-[20px] font-extrabold text-white leading-tight" id="riwayat-title">Riwayat</h1>
+                        <p class="text-[10px] mt-0.5" style="color:rgba(255,255,255,0.65);">Daftar yang sudah diselesaikan</p>
+                    </div>
+                </div>
+            </div>
+            <div class="scrollable-area px-5 pt-5">
+                <div id="riwayat-container" class="flex flex-col gap-3"></div>
+            </div>
+        </div>
+
+        <!-- DETAIL PAGE -->
+        <div id="page-detail" class="page">
+            <div class="header-card !pb-6">
+                <div class="flex justify-between items-center relative z-10">
+                    <button onclick="pindahHalaman('page-riwayat')" class="w-10 h-10 rounded-2xl flex justify-center items-center transition active:scale-95" style="background:rgba(255,255,255,0.2);">
+                        <i class="fas fa-chevron-left text-white text-[12px]"></i>
+                    </button>
+                    <div class="flex items-center gap-3">
+                        <span id="detail-status" class="px-3 py-1.5 rounded-[10px] text-[10px] font-bold"></span>
+                        <button id="btn-hapus-detail" class="w-9 h-9 rounded-xl flex justify-center items-center transition active:scale-95" style="background:rgba(255,255,255,0.15);">
+                            <i class="fas fa-trash text-white/70 text-[12px]"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="mt-5 relative z-10">
+                    <h1 class="text-[22px] font-extrabold text-white leading-snug" id="detail-judul"></h1>
+                    <p class="text-[11px] mt-1.5" style="color:rgba(255,255,255,0.65);" id="detail-tgl-selesai"></p>
+                </div>
+            </div>
+            <div class="scrollable-area px-5 pt-5">
+                <div class="flex flex-col gap-3">
+                    <div class="detail-section">
+                        <h3 class="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-2">Deskripsi</h3>
+                        <p class="text-[13px] text-gray-700 leading-relaxed" id="detail-desc"></p>
+                    </div>
+                    <div class="detail-section">
+                        <h3 class="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-2">Tenggat Waktu Awal</h3>
+                        <p class="text-[13px] text-gray-800 font-bold" id="detail-deadline"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FORM PAGE -->
+        <div id="page-form" class="page">
+            <div class="header-card !pb-6">
+                <div class="flex items-center gap-3 relative z-10">
+                    <button onclick="pindahHalaman('page-beranda')" class="w-10 h-10 rounded-2xl flex justify-center items-center transition active:scale-95" style="background:rgba(255,255,255,0.2);">
+                        <i class="fas fa-chevron-left text-white text-[12px]"></i>
+                    </button>
+                    <h1 class="text-[20px] font-extrabold text-white" id="form-title">Tambah Tugas</h1>
+                </div>
+            </div>
+            <div class="scrollable-area px-5 pt-5">
+                <div class="bg-white rounded-[24px] p-5 shadow-sm border border-blue-50">
+                    <form id="form-data" class="flex flex-col gap-4">
+                        <input type="hidden" id="form-id">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-1">Nama <span id="label-jenis"></span></label>
+                            <input type="text" id="form-judul" class="input-pill" required>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-1">Deskripsi</label>
+                            <textarea id="form-desc" class="input-pill" rows="3" placeholder="Tambahkan catatan..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-1">Deadline / Tanggal</label>
+                            <input type="date" id="form-date" class="input-pill font-semibold text-gray-700" required>
+                        </div>
+                        <div class="mt-2">
+                            <button type="submit" class="btn-gradient" id="btn-submit-form">Tambah</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROFIL PAGE -->
+        <div id="page-profil" class="page">
+            <div class="profile-header">
+                <div class="w-full flex justify-between items-center mb-5 relative z-10">
+                    <button onclick="pindahHalaman('page-beranda')" class="w-10 h-10 rounded-2xl flex justify-center items-center transition active:scale-95" style="background:rgba(255,255,255,0.2);">
+                        <i class="fas fa-chevron-left text-white text-[12px]"></i>
+                    </button>
+                    <p class="text-white font-bold text-[14px]">Profil Saya</p>
+                    <div class="w-10"></div>
+                </div>
+                <div class="relative z-10 flex flex-col items-center">
+                    <div class="relative">
+                        <img id="edit-pp" src=""
+                            onerror="this.src='https://i.ibb.co.com/DPPV77Kj/24a54c075ae7a7e7ae16d69e2766cefe.jpg'"
+                            class="w-24 h-24 rounded-[22px] object-cover border-4 border-white/30"
+                            style="box-shadow:0 8px 24px rgba(0,0,0,0.25);">
+                        <div class="absolute -bottom-2 -right-2 w-8 h-8 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#3b82f6,#06b6d4); box-shadow:0 4px 10px rgba(59,130,246,0.4);">
+                            <i class="fas fa-pencil-alt text-white text-[10px]"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="scrollable-area px-5 pt-5">
+                <div class="bg-white rounded-[24px] p-5 shadow-sm border border-blue-50">
+                    <form id="form-profil" class="flex flex-col gap-4">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-1">Username / Nama</label>
+                            <input type="text" id="edit-username" class="input-pill font-semibold" required>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-500 mb-1.5 ml-1">URL Foto Profil</label>
+                            <input type="url" id="edit-url-pp" class="input-pill text-[12px] text-blue-500" required>
+                        </div>
+                        <button type="submit" class="btn-gradient mt-2">Simpan Perubahan</button>
+                    </form>
+                    <button onclick="keluarAkun()" class="mt-3 w-full py-3.5 rounded-[16px] font-bold flex items-center justify-center gap-2 text-[13px] transition active:scale-95" style="background:#fff1f2; color:#f43f5e;">
+                        <i class="fas fa-sign-out-alt"></i> Keluar Akun
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
-    ${isOwnProfile ? `
-    <div style="margin-top:10px">
-      <button class="btn btn-danger" onclick="confirmLogout()"><span data-lucide="log-out"></span> Logout</button>
-    </div>
-    ` : ''}
-  `;
-}
-function openEditProfileModal() {
-  showModal(
-    'Edit Profil',
-    `<div class="input-group"><label>Username Baru</label><input type="text" id="ep-username" value="${currentUser.username}" placeholder="Username baru"/></div>
-     <div class="input-group"><label>URL Foto Profil</label><input type="text" id="ep-avatar" value="${currentUser.avatarUrl || ''}" placeholder="https://..."/></div>
-     <p style="font-size:11px;color:var(--muted)">Tips: pakai link gambar dari Imgur/ImgBB, atau koleksi PFP gacha-mu (Koleksi → "Pakai sebagai PFP").</p>`,
-    [
-      { label: 'Simpan', cls: 'btn-primary', fn: saveProfileEdit },
-      { label: 'Batal', cls: 'btn-ghost', fn: closeModal }
-    ]
-  );
-}
-window.openEditProfileModal = openEditProfileModal;
-async function saveProfileEdit() {
-  const newUsername = document.getElementById('ep-username')?.value?.trim();
-  const newAvatar    = document.getElementById('ep-avatar')?.value?.trim();
-  if (!newUsername) { toast('Username tidak boleh kosong.', 'error'); return; }
-  if (newAvatar && !newAvatar.startsWith('http')) { toast('URL foto harus dimulai dengan http.', 'error'); return; }
-  currentUser.avatarUrl = newAvatar || DEFAULT_AVATAR;
-  if (newUsername.toLowerCase() !== currentUser.username.toLowerCase()) {
-    currentUser.username = newUsername;
-    // Catatan: ini hanya mengubah display name, ID dokumen Firestore tetap memakai username lama.
-  } else {
-    currentUser.username = newUsername;
-  }
-  await saveUserData();
-  closeModal();
-  renderSidebar();
-  renderProfile(currentUser);
-  toast('Profil berhasil diperbarui!', 'success');
-}
-window.saveProfileEdit = saveProfileEdit;
-function isDailyClaimed() {
-  if (!currentUser) return false;
-  const last = currentUser.lastLogin || 0;
-  const now  = new Date(); const lastDate = new Date(last);
-  return now.toDateString() === lastDate.toDateString() && (currentUser._dailyClaimed);
-}
-async function claimDaily() {
-  if (isDailyClaimed()) return;
-  currentUser.eris = (currentUser.eris || 0) + DAILY_REWARD;
-  currentUser._dailyClaimed = true;
-  currentUser.lastLogin = Date.now();
-  await saveUserData();
-  renderProfile(currentUser);
-  toast(`+${DAILY_REWARD} Eris dari Daily Login! 🎁`, 'success');
-}
-window.claimDaily = claimDaily;
-function openTopUpModal() {
-  showModal(
-    '💰 Top Up Eris',
-    `<p>Ups, tidak ada apa-apa di sini.<br/><br/>Silahkan hubungi Admin (Maou) untuk mengisi Eris kamu. Sampaikan username dan jumlah Eris yang ingin ditambahkan. ✨</p>`,
-    [{ label: 'Mengerti', cls: 'btn-primary', fn: closeModal }]
-  );
-}
-window.openTopUpModal = openTopUpModal;
-function confirmLogout() {
-  showModal(
-    'Logout',
-    'Yakin ingin keluar dari guild?',
-    [
-      { label: 'Logout', cls: 'btn-danger', fn: logout },
-      { label: 'Batal',  cls: 'btn-ghost',  fn: closeModal }
-    ]
-  );
-}
-window.confirmLogout = confirmLogout;
-async function loadAllUsers() {
-  const snap = await getDocs(collection(db, 'users'));
-  allUsers   = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  const roleOrder = { maou:0, bangsawan:1, rakyat:2 };
-  allUsers.sort((a,b) => {
-    const ro = (roleOrder[a.role]||2) - (roleOrder[b.role]||2);
-    if (ro !== 0) return ro;
-    const rpo = (b.rankPoints||0) - (a.rankPoints||0);
-    if (rpo !== 0) return rpo;
-    return a.username.localeCompare(b.username);
-  });
-}
-function renderUsers() {
-  const q    = (document.getElementById('user-search')?.value || '').toLowerCase();
-  const list = document.getElementById('users-list');
-  const filtered = allUsers.filter(u => !q || u.username.toLowerCase().includes(q));
-  if (!filtered.length) {
-    list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">👥</div><h3>Tidak ada member</h3></div>`;
-    return;
-  }
-  list.innerHTML = filtered.map(u => {
-    const rank = getRank(u.rankPoints || 0);
-    return `
-    <div class="user-row" onclick="viewUserProfile('${u.id}')">
-      <img class="user-row-avatar" src="${safeImg(u.avatarUrl, DEFAULT_AVATAR)}" onerror="this.src='${DEFAULT_AVATAR}'" alt="${u.username}"/>
-      <div class="user-row-info">
-        <div class="user-row-name ${u.role === 'maou' ? 'maou-text' : u.role === 'bangsawan' ? '' : ''}"
-          style="${u.role==='maou'?'color:var(--maou-clr)':u.role==='bangsawan'?'color:var(--bangsawan-clr)':''}"
-        >${u.username}</div>
-        <div class="user-row-meta">${roleLabel(u.role)} · Eris: ${u.eris||0}</div>
-      </div>
-      <div class="user-row-rank">🏅 ${rank.name}</div>
-    </div>`;
-  }).join('');
-}
-window.filterUsers = renderUsers;
-async function viewUserProfile(username) {
-  const snap = await getDoc(doc(db, 'users', username));
-  if (!snap.exists()) return;
-  const userData = snap.data();
-  navigate('profile');
-  renderProfile({ id: username, ...userData }, username === currentUser.id);
-}
-window.viewUserProfile = viewUserProfile;
-function renderAdminHome() {
-  document.getElementById('admin-section-content').innerHTML = '';
-}
-window.renderAdminHome = renderAdminHome;
-function openAdminSection(section) {
-  const el = document.getElementById('admin-section-content');
-  if (section === 'manage-gacha') {
-    renderManageGachaPool(el);
-  }
-  else if (section === 'manage-users') {
-    renderManageUsers(el);
-  }
-}
-window.openAdminSection = openAdminSection;
-async function renderManageGachaPool(el) {
-  await loadGachaPool();
-  el.innerHTML = `
-    <div class="section-label">Gacha Pool (${gachaPool.length} item)</div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Gambar</th><th>Nama</th><th>Tipe</th><th>Rarity</th><th>Aksi</th></tr></thead>
-        <tbody>
-          ${gachaPool.map(g=>`
-            <tr>
-              <td><img class="table-img" src="${safeImg(g.imageUrl,'')}" onerror="this.style.background='var(--panel2)'"/></td>
-              <td>${g.name}</td>
-              <td style="color:var(--muted);font-size:12px">${g.type}</td>
-              <td><span class="rarity-label rarity-${g.rarity}">${g.rarity}</span></td>
-              <td><button class="icon-btn" onclick="deleteGachaItem('${g.id}')">🗑</button></td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    </div>`;
-}
-async function deleteGachaItem(id) {
-  await deleteDoc(doc(db, 'gacha_pool', id));
-  await loadGachaPool();
-  openAdminSection('manage-gacha');
-  toast('Item dihapus dari pool.', 'info');
-}
-window.deleteGachaItem = deleteGachaItem;
-async function renderManageUsers(el) {
-  await loadAllUsers();
-  el.innerHTML = `
-    <div class="section-label">Kelola Member (${allUsers.length} user)</div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Username</th><th>Role</th><th>Eris</th><th>Rank Pts</th><th>Aksi</th></tr></thead>
-        <tbody>
-          ${allUsers.map(u=>`
-            <tr>
-              <td style="font-weight:600">${u.username}</td>
-              <td><span class="sidebar-role-badge ${roleClass(u.role)}">${roleLabel(u.role)}</span></td>
-              <td>${u.eris||0}</td>
-              <td>${u.rankPoints||0}</td>
-              <td style="display:flex;gap:6px;flex-wrap:wrap">
-                <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px" onclick="adminAddEris('${u.id}')">+Eris</button>
-                <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px" onclick="adminChangeRole('${u.id}')">Role</button>
-              </td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    </div>`;
-}
-function adminAddEris(uid) {
-  showModal(
-    'Tambah Eris untuk ' + uid,
-    `<div class="input-group"><label>Jumlah Eris</label><input type="number" id="admin-eris-amt" min="1" value="100"/></div>`,
-    [
-      { label: 'Tambahkan', cls: 'btn-maou', fn: async () => {
-        const amt = parseInt(document.getElementById('admin-eris-amt')?.value || '0');
-        if (!amt || amt <= 0) return;
-        const snap = await getDoc(doc(db, 'users', uid));
-        if (!snap.exists()) return;
-        const cur = snap.data().eris || 0;
-        await updateDoc(doc(db, 'users', uid), { eris: cur + amt });
-        if (uid === currentUser.id) { currentUser.eris = cur + amt; renderSidebar(); }
-        closeModal();
-        toast(`+${amt} Eris ditambahkan ke ${uid}!`, 'success');
-        await loadAllUsers();
-        openAdminSection('manage-users');
-      }},
-      { label: 'Batal', cls: 'btn-ghost', fn: closeModal }
-    ]
-  );
-}
-window.adminAddEris = adminAddEris;
-function adminChangeRole(uid) {
-  showModal(
-    'Ubah Role: ' + uid,
-    `<div class="input-group"><label>Role Baru</label>
-     <select id="admin-role-sel">
-       <option value="rakyat">⚔️ Rakyat</option>
-       <option value="bangsawan">💎 Bangsawan</option>
-       <option value="maou">👑 Maou</option>
-     </select></div>`,
-    [
-      { label: 'Simpan', cls: 'btn-maou', fn: async () => {
-        const newRole = document.getElementById('admin-role-sel')?.value;
-        await updateDoc(doc(db, 'users', uid), { role: newRole });
-        if (uid === currentUser.id) { currentUser.role = newRole; renderSidebar(); }
-        closeModal();
-        toast(`Role ${uid} diubah ke ${roleLabel(newRole)}!`, 'success');
-        await loadAllUsers();
-        openAdminSection('manage-users');
-      }},
-      { label: 'Batal', cls: 'btn-ghost', fn: closeModal }
-    ]
-  );
-}
-window.adminChangeRole = adminChangeRole;
-async function saveUserData() {
-  if (!currentUser) return;
-  const { id, _dailyClaimed, ...data } = currentUser;
-  await updateDoc(doc(db, 'users', id), data);
-}
-function swapLogo(fallbackId, realId, realClass) {
-  const el = document.getElementById(fallbackId);
-  if (!el || !ASSETS.LOGO_URL) return;
-  const probe = new Image();
-  probe.onload = () => {
-    const img = document.createElement('img');
-    img.src = ASSETS.LOGO_URL;
-    if (realId)    img.id = realId;
-    if (realClass) img.className = realClass;
-    el.replaceWith(img);
-  };
-  probe.src = ASSETS.LOGO_URL;
-}
-function applyBrandLogo() {
-  swapLogo('splash-logo-fallback',  'splash-logo', null);
-  swapLogo('auth-logo-fallback',    null, 'auth-logo-img');
-  swapLogo('sidebar-logo-fallback', null, 'sidebar-logo-img');
-}
-window.addEventListener('DOMContentLoaded', () => {
-  applyBrandLogo();
-  refreshIcons();
-  const observer = new MutationObserver(() => {
-    clearTimeout(window._iconDebounce);
-    window._iconDebounce = setTimeout(refreshIcons, 30);
-  });
-  observer.observe(document.body, { childList: true, subtree: true });
-  setTimeout(() => {
-    document.getElementById('splash').classList.add('hidden');
-  }, 2400);
-});
-</script>
+
+    <style>
+        @keyframes splashPop {
+            from { opacity: 0; transform: translateY(8px) scale(0.95); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+    </style>
+
+    <script type="module">
+        import { app, auth, db, messaging } from "./firebase-config.js";
+        import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-messaging.js";
+
+        const TUGAS_AMAN = "https://i.ibb.co.com/YB7zx85c/aman1.png"; 
+        const TUGAS_SEDIH = "https://i.ibb.co.com/hRKKjg2k/dekat1.png"; 
+        const TUGAS_TIDUR = "https://i.ibb.co.com/k6k6YCcJ/telat1.png"; 
+        const KEGIATAN_AMAN = "https://i.ibb.co.com/xWVQD09/aman2.png"; 
+        const KEGIATAN_SEDIH = "https://i.ibb.co.com/HfnPgQJ0/dekat2.png"; 
+        const KEGIATAN_TIDUR = "https://i.ibb.co.com/LXTVMGFz/telat2.png"; 
+        const LINK_PFP_DEFAULT = "https://i.ibb.co.com/DPPV77Kj/24a54c075ae7a7e7ae16d69e2766cefe.jpg";
+
+        let currentUser = null;
+        let semuaData = []; 
+        let tipeAktif = 'tugas';
+        let unsubscribeDb = null;
+        let fungsiAksiYa = null; 
+
+        // Splash dismiss
+        setTimeout(() => {
+            const splash = document.getElementById('splash-overlay');
+            if(splash) {
+                splash.style.opacity = '0';
+                setTimeout(() => splash.remove(), 500);
+            }
+        }, 1800);
+
+        // Remaster popup
+        function tampilkanPopupRemaster() {
+            if(localStorage.getItem('taskify_popup_dismissed') === '1') return;
+            const popup = document.getElementById('popup-remaster');
+            const box = document.getElementById('popup-remaster-box');
+            popup.classList.remove('hidden');
+            setTimeout(() => {
+                box.style.transform = 'translateY(0)';
+            }, 30);
+        }
+
+        function tutupPopupRemaster(permanent) {
+            const box = document.getElementById('popup-remaster-box');
+            box.style.transform = 'translateY(100%)';
+            setTimeout(() => {
+                document.getElementById('popup-remaster').classList.add('hidden');
+            }, 400);
+            if(permanent) localStorage.setItem('taskify_popup_dismissed', '1');
+        }
+
+        document.getElementById('btn-popup-ok').addEventListener('click', () => tutupPopupRemaster(false));
+        document.getElementById('btn-popup-jangan').addEventListener('click', () => tutupPopupRemaster(true));
+
+        // Modal
+        window.tampilkanModal = (pesan, fungsiAksi) => {
+            document.getElementById('modal-pesan').innerText = pesan;
+            fungsiAksiYa = fungsiAksi;
+            const modal = document.getElementById('modal-konfirmasi');
+            const box = document.getElementById('modal-box');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                box.classList.remove('scale-95');
+            }, 10);
+        }
+
+        window.tutupModal = () => {
+            const modal = document.getElementById('modal-konfirmasi');
+            const box = document.getElementById('modal-box');
+            modal.classList.add('opacity-0');
+            box.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        document.getElementById('btn-modal-batal').addEventListener('click', tutupModal);
+        document.getElementById('btn-modal-ya').addEventListener('click', () => {
+            if(fungsiAksiYa) fungsiAksiYa();
+            tutupModal();
+        });
+
+        // Page transition
+        window.pindahHalaman = (idHalaman) => {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(idHalaman).classList.add('active');
+        }
+
+        window.tampilkanPesan = (pesan) => {
+            const toast = document.getElementById('toast');
+            toast.innerText = pesan;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        async function aktifkanNotifikasi() {
+            try {
+                const izin = await Notification.requestPermission();
+                if (izin === 'granted') {
+                    const token = await getToken(messaging, { vapidKey: 'BP6xL-pJviAEYplqRBQzdRw5U_DSCEgfXNx5SQiaUo6xVMY2277RXZ7Nu6asCkF5dkVDj74lJwZmRak-IM2hj88' });
+                }
+                onMessage(messaging, (payload) => {
+                    tampilkanPesan(`🔔 ${payload.notification.title}: ${payload.notification.body}`);
+                });
+            } catch (error) { }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                const nama = user.displayName || "User";
+                const pfp = user.photoURL || LINK_PFP_DEFAULT;
+                
+                document.getElementById('greet-name').innerText = `Halo, ${nama} 👋`;
+                
+                const navPp = document.getElementById('nav-pp');
+                navPp.src = pfp;
+                navPp.onerror = function() { this.src = LINK_PFP_DEFAULT; };
+                
+                document.getElementById('edit-username').value = nama;
+                document.getElementById('edit-url-pp').value = pfp;
+                document.getElementById('edit-pp').src = pfp;
+
+                aktifkanDatabase();
+                aktifkanNotifikasi(); 
+                pindahHalaman('page-beranda');
+                setTimeout(tampilkanPopupRemaster, 800);
+            } else {
+                currentUser = null;
+                if(unsubscribeDb) unsubscribeDb();
+                pindahHalaman('page-login');
+            }
+        });
+
+        document.getElementById('form-login').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            pindahHalaman('page-loading');
+            try {
+                await signInWithEmailAndPassword(auth, 
+                    document.getElementById('login-email').value, 
+                    document.getElementById('login-password').value
+                );
+                document.getElementById('form-login').reset();
+            } catch (err) {
+                pindahHalaman('page-login');
+                tampilkanPesan("Gagal masuk. Periksa kembali datanya.");
+            }
+        });
+
+        document.getElementById('form-register').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('reg-email').value;
+            const pass = document.getElementById('reg-password').value;
+            const conf = document.getElementById('reg-confirm').value;
+            const nama = document.getElementById('reg-username').value;
+
+            if(pass.length < 6) return tampilkanPesan("Password minimal 6 karakter!");
+            if(pass !== conf) return tampilkanPesan("Konfirmasi password salah!");
+
+            pindahHalaman('page-loading');
+            try {
+                const res = await createUserWithEmailAndPassword(auth, email, pass);
+                await updateProfile(res.user, { displayName: nama, photoURL: LINK_PFP_DEFAULT });
+                document.getElementById('greet-name').innerText = `Halo, ${nama} 👋`;
+                document.getElementById('edit-username').value = nama;
+                document.getElementById('form-register').reset();
+                tampilkanPesan("Akun berhasil dibuat!");
+            } catch (err) {
+                pindahHalaman('page-register');
+                tampilkanPesan("Gagal mendaftar. Email mungkin sudah dipakai.");
+            }
+        });
+
+        window.keluarAkun = () => {
+            tampilkanModal("Yakin ingin keluar dari aplikasi?", async () => {
+                await signOut(auth);
+            });
+        }
+
+        document.getElementById('form-profil').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const namaBaru = document.getElementById('edit-username').value;
+            let urlBaru = document.getElementById('edit-url-pp').value.trim();
+            if(urlBaru === "") urlBaru = LINK_PFP_DEFAULT;
+            try {
+                await updateProfile(currentUser, { displayName: namaBaru, photoURL: urlBaru });
+                document.getElementById('edit-pp').src = urlBaru;
+                document.getElementById('nav-pp').src = urlBaru;
+                document.getElementById('greet-name').innerText = `Halo, ${namaBaru} 👋`;
+                tampilkanPesan("Profil tersimpan!");
+                pindahHalaman('page-beranda');
+            } catch(err) {
+                tampilkanPesan("Gagal menyimpan profil.");
+            }
+        });
+
+        document.getElementById('edit-url-pp').addEventListener('input', (e) => {
+            const val = e.target.value.trim();
+            if(val) { document.getElementById('edit-pp').src = val; } 
+            else { document.getElementById('edit-pp').src = LINK_PFP_DEFAULT; }
+        });
+
+        window.ubahFilter = (tipe) => {
+            tipeAktif = tipe;
+            const btnTugas = document.getElementById('tab-tugas');
+            const btnKegiatan = document.getElementById('tab-kegiatan');
+            
+            if(tipe === 'tugas') {
+                btnTugas.className = "tab-btn active";
+                btnKegiatan.className = "tab-btn inactive";
+                document.getElementById('btn-tambah-label').innerText = "Tugas";
+            } else {
+                btnKegiatan.className = "tab-btn active";
+                btnTugas.className = "tab-btn inactive";
+                document.getElementById('btn-tambah-label').innerText = "Kegiatan";
+            }
+            gambarList();
+        }
+
+        function aktifkanDatabase() {
+            const refTugas = collection(db, 'users', currentUser.uid, 'tasks');
+            unsubscribeDb = onSnapshot(refTugas, (snapshot) => {
+                semuaData = [];
+                snapshot.forEach(doc => semuaData.push({ id: doc.id, ...doc.data() }));
+                gambarList();
+                updateStats();
+                if(document.getElementById('page-riwayat').classList.contains('active')) {
+                    gambarRiwayat();
+                }
+            });
+        }
+
+        function hitungWaktu(tglStr) {
+            const parts = tglStr.split('-');
+            const targetDate = new Date(parts[0], parts[1] - 1, parts[2]);
+            targetDate.setHours(0, 0, 0, 0);
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+            const selisihHari = Math.round((targetDate - now) / (1000 * 60 * 60 * 24));
+            if(selisihHari < 0) return { teks: `TELAT ${Math.abs(selisihHari)} HARI`, status: 'telat' };
+            if(selisihHari === 0) return { teks: "HARI INI!", status: 'dekat' };
+            if(selisihHari === 1) return { teks: "BESOK", status: 'dekat' };
+            if(selisihHari <= 3) return { teks: `${selisihHari} HARI LAGI`, status: 'dekat' };
+            return { teks: targetDate.toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'}), status: 'aman' };
+        }
+
+        function updateStats() {
+            const aktif = semuaData.filter(d => d.tipe === tipeAktif && !d.selesai);
+            const dekat = aktif.filter(d => {
+                const s = hitungWaktu(d.tanggal);
+                return s.status === 'dekat' || s.status === 'telat';
+            });
+            const selesai = semuaData.filter(d => d.tipe === tipeAktif && d.selesai);
+            
+            document.getElementById('stat-aktif').innerText = aktif.length;
+            document.getElementById('stat-dekat').innerText = dekat.length;
+            document.getElementById('stat-selesai').innerText = selesai.length;
+        }
+
+        function gambarList() {
+            const wadah = document.getElementById('list-container');
+            wadah.innerHTML = '';
+            updateStats();
+            let dataDitampilkan = semuaData.filter(d => d.tipe === tipeAktif && !d.selesai);
+            dataDitampilkan.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
+
+            if(dataDitampilkan.length === 0) {
+                wadah.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📋</div>
+                        <p style="font-size:14px; font-weight:700; color:#64748b; margin:0;">Belum ada yang ditambahkan</p>
+                        <p style="font-size:11px; color:#94a3b8; margin:0; text-align:center;">Tap tombol di bawah untuk menambah ${tipeAktif}</p>
+                    </div>`;
+                return;
+            }
+
+            dataDitampilkan.forEach((item, idx) => {
+                const sisa = hitungWaktu(item.tanggal);
+                
+                let imgGambar = tipeAktif === 'tugas' ? TUGAS_AMAN : KEGIATAN_AMAN;
+                let badgeClass = tipeAktif === 'tugas' ? 'badge-aman-tugas' : 'badge-aman-kegiatan';
+                let btnGradient = tipeAktif === 'tugas' 
+                    ? 'background:linear-gradient(135deg,#eff6ff,#dbeafe); color:#3b82f6;'
+                    : 'background:linear-gradient(135deg,#fff7ed,#fed7aa); color:#f97316;';
+                
+                if(sisa.status === 'telat') {
+                    imgGambar = tipeAktif === 'tugas' ? TUGAS_TIDUR : KEGIATAN_TIDUR;
+                    badgeClass = 'badge-telat';
+                    btnGradient = 'background:linear-gradient(135deg,#fff1f2,#fecdd3); color:#f43f5e;';
+                } else if(sisa.status === 'dekat') {
+                    imgGambar = tipeAktif === 'tugas' ? TUGAS_SEDIH : KEGIATAN_SEDIH;
+                    badgeClass = tipeAktif === 'tugas' ? 'badge-dekat-tugas' : 'badge-dekat-kegiatan';
+                    btnGradient = tipeAktif === 'tugas' 
+                        ? 'background:linear-gradient(135deg,#ecfeff,#cffafe); color:#0891b2;'
+                        : 'background:linear-gradient(135deg,#fefce8,#fef08a); color:#ca8a04;';
+                }
+
+                const teksBtnSelesai = tipeAktif === 'tugas' ? 'Selesai' : 'Akhiri';
+                const delay = idx * 40;
+
+                wadah.innerHTML += `
+                    <div class="task-card" style="animation-delay:${delay}ms;">
+                        <img src="${imgGambar}" 
+                            class="w-[52px] h-[52px] rounded-[14px] object-cover flex-shrink-0 cursor-pointer bg-gray-50 transition active:scale-95" 
+                            onclick="bukaFormEdit('${item.id}')" 
+                            style="box-shadow:0 4px 12px rgba(59,130,246,0.12);"
+                            alt="Status">
+                        
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-start mb-0.5">
+                                <h3 class="font-bold text-gray-900 text-[14px] truncate pr-2 cursor-pointer leading-tight" 
+                                    onclick="bukaFormEdit('${item.id}')">${item.judul}</h3>
+                                <button onclick="hapusData('${item.id}', true)" 
+                                    class="w-7 h-7 flex items-center justify-center rounded-lg text-gray-300 hover:text-red-400 hover:bg-red-50 flex-shrink-0 transition active:scale-90">
+                                    <i class="fas fa-trash text-[10px]"></i>
+                                </button>
+                            </div>
+                            <p class="text-[11px] text-gray-400 truncate leading-tight">${item.deskripsi || 'Tidak ada deskripsi'}</p>
+                            
+                            <div class="flex justify-between items-center mt-2.5">
+                                <span class="badge ${badgeClass}">${sisa.teks}</span>
+                                <button onclick="selesaikanTugas('${item.id}')" 
+                                    class="px-3.5 py-1.5 rounded-[10px] text-[10px] font-bold transition active:scale-95"
+                                    style="${btnGradient}">
+                                    ${teksBtnSelesai} ✓
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        window.bukaRiwayat = () => {
+            document.getElementById('riwayat-title').innerText = tipeAktif === 'tugas' ? 'Riwayat Tugas' : 'Riwayat Kegiatan';
+            gambarRiwayat();
+            pindahHalaman('page-riwayat');
+        }
+
+        window.gambarRiwayat = () => {
+            const wadah = document.getElementById('riwayat-container');
+            wadah.innerHTML = '';
+            let dataRiwayat = semuaData.filter(d => d.tipe === tipeAktif && d.selesai);
+            dataRiwayat.sort((a, b) => new Date(b.tanggalSelesai) - new Date(a.tanggalSelesai));
+
+            if(dataRiwayat.length === 0) {
+                wadah.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🏆</div>
+                        <p style="font-size:14px; font-weight:700; color:#64748b; margin:0;">Belum ada riwayat</p>
+                        <p style="font-size:11px; color:#94a3b8; margin:0; text-align:center;">Selesaikan tugasmu untuk melihat riwayat di sini</p>
+                    </div>`;
+                return;
+            }
+
+            dataRiwayat.forEach((item, idx) => {
+                const tglSelesai = new Date(item.tanggalSelesai).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'});
+                const isTelat = item.statusSelesai === 'Telat';
+                const badgeStyle = isTelat 
+                    ? 'background:#fff1f2; color:#f43f5e;'
+                    : 'background:#f0fdf4; color:#16a34a;';
+                const iconBg = isTelat ? '#fff1f2' : '#f0fdf4';
+                const iconColor = isTelat ? '#f43f5e' : '#16a34a';
+                
+                wadah.innerHTML += `
+                    <div class="history-card" onclick="bukaDetailRiwayat('${item.id}')" style="animation-delay:${idx*40}ms;">
+                        <div class="w-11 h-11 rounded-[14px] flex justify-center items-center flex-shrink-0" style="background:${iconBg};">
+                            <i class="fas fa-check text-[13px]" style="color:${iconColor};"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-bold text-gray-800 text-[13px] truncate leading-tight">${item.judul}</h3>
+                            <p class="text-[10px] text-gray-400 truncate mt-0.5">Selesai: ${tglSelesai}</p>
+                        </div>
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            <span class="badge" style="${badgeStyle}">${item.statusSelesai}</span>
+                            <i class="fas fa-chevron-right text-gray-300 text-[10px]"></i>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        window.bukaDetailRiwayat = (id) => {
+            const data = semuaData.find(d => d.id === id);
+            if(!data) return;
+            
+            document.getElementById('detail-judul').innerText = data.judul;
+            document.getElementById('detail-desc').innerText = data.deskripsi || '-';
+            document.getElementById('detail-deadline').innerText = new Date(data.tanggal).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
+            
+            const tglSelesaiFormat = new Date(data.tanggalSelesai).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute:'2-digit'});
+            document.getElementById('detail-tgl-selesai').innerText = "Diselesaikan pada: " + tglSelesaiFormat;
+            
+            const statusEl = document.getElementById('detail-status');
+            statusEl.innerText = data.statusSelesai;
+            if(data.statusSelesai === 'Telat') {
+                statusEl.style.cssText = "background:#fff1f2; color:#f43f5e; padding:5px 12px; border-radius:10px; font-size:10px; font-weight:700;";
+            } else {
+                statusEl.style.cssText = "background:rgba(240,253,244,0.9); color:#16a34a; padding:5px 12px; border-radius:10px; font-size:10px; font-weight:700;";
+            }
+
+            document.getElementById('btn-hapus-detail').onclick = () => {
+                hapusData(id, false);
+            };
+
+            pindahHalaman('page-detail');
+        }
+
+        window.bukaFormTambah = () => {
+            document.getElementById('form-data').reset();
+            document.getElementById('form-id').value = '';
+            document.getElementById('form-date').valueAsDate = new Date();
+            document.getElementById('form-title').innerText = tipeAktif === 'tugas' ? 'Tambah Tugas' : 'Tambah Kegiatan';
+            document.getElementById('label-jenis').innerText = tipeAktif === 'tugas' ? 'Tugas' : 'Kegiatan';
+            document.getElementById('btn-submit-form').innerText = 'Tambah';
+            pindahHalaman('page-form');
+        }
+
+        window.bukaFormEdit = (id) => {
+            const data = semuaData.find(d => d.id === id);
+            if(!data) return;
+            document.getElementById('form-id').value = id;
+            document.getElementById('form-judul').value = data.judul;
+            document.getElementById('form-desc').value = data.deskripsi;
+            document.getElementById('form-date').value = data.tanggal;
+            document.getElementById('form-title').innerText = tipeAktif === 'tugas' ? 'Edit Tugas' : 'Edit Kegiatan';
+            document.getElementById('label-jenis').innerText = tipeAktif === 'tugas' ? 'Tugas' : 'Kegiatan';
+            document.getElementById('btn-submit-form').innerText = 'Simpan';
+            pindahHalaman('page-form');
+        }
+
+        document.getElementById('form-data').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('form-id').value;
+            const dataTugas = {
+                judul: document.getElementById('form-judul').value,
+                deskripsi: document.getElementById('form-desc').value,
+                tanggal: document.getElementById('form-date').value,
+                tipe: tipeAktif,
+                selesai: false
+            };
+
+            try {
+                if(id) {
+                    await updateDoc(doc(db, 'users', currentUser.uid, 'tasks', id), dataTugas);
+                    tampilkanPesan("✅ Telah Diperbarui!");
+                } else {
+                    await addDoc(collection(db, 'users', currentUser.uid, 'tasks'), dataTugas);
+                    tampilkanPesan("✅ Telah Ditambahkan!");
+                }
+                pindahHalaman('page-beranda');
+            } catch(e) { tampilkanPesan("Gagal menyimpan."); }
+        });
+
+        window.hapusData = (id, dariBeranda = true) => {
+            tampilkanModal("Apakah kamu yakin ingin menghapus data ini?", async () => {
+                try {
+                    await deleteDoc(doc(db, 'users', currentUser.uid, 'tasks', id));
+                    tampilkanPesan("🗑️ Data berhasil dihapus!");
+                    if(!dariBeranda) {
+                        pindahHalaman('page-riwayat');
+                    }
+                } catch(e) {}
+            });
+        }
+
+        window.selesaikanTugas = (id) => {
+            tampilkanModal("Apakah kamu yakin sudah selesai?", async () => {
+                try {
+                    const data = semuaData.find(d => d.id === id);
+                    const sisa = hitungWaktu(data.tanggal);
+                    const statusAkhir = sisa.status === 'telat' ? 'Telat' : 'Tepat Waktu';
+                    
+                    await updateDoc(doc(db, 'users', currentUser.uid, 'tasks', id), {
+                        selesai: true,
+                        tanggalSelesai: new Date().toISOString(),
+                        statusSelesai: statusAkhir
+                    });
+                    tampilkanPesan("Terima kasih atas kerja kerasmu.");
+                } catch (e) {}
+            });
+        }
+    </script>
 </body>
 </html>
